@@ -30,7 +30,26 @@ People who use chatbots but don't build them, and who wonder what's really going
 
 ## Status
 
-Planning. See [PLAN.md](PLAN.md).
+Milestone M1 (skeleton and inspector) in progress: layers 1–4, the inspector and the mobile layout are built. Recorded examples still need capturing from real models; see [examples/README.md](examples/README.md). Plan and decisions: [PLAN.md](PLAN.md).
+
+## Development
+
+```sh
+npm install
+npm run dev        # local site
+npm test           # unit and component tests
+npm run typecheck
+npm run build      # static site in dist/
+npm run capture    # record examples; see examples/README.md
+```
+
+Code map:
+
+- `src/lib/assemble.ts`: `assemble(layerConfig, conversation) -> request`, the single source of what the model receives.
+- `src/components/Inspector.tsx`: shows that request and the raw response, readable or byte-exact.
+- `src/lib/templates.ts`, `src/data/chat-templates.json`: real chat templates for layer 2.
+- `scripts/specs.ts`, `scripts/capture.ts`: what to record, and the script that records it.
+- `src/content/layers.ts`: the plain-language copy for each layer.
 
 ## License
 

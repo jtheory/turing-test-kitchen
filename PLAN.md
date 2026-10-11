@@ -58,10 +58,10 @@ Three modes, in priority order:
 
 ## 6. Open questions
 
-- **Base model source for layer 1.** Major chat APIs mostly don't offer base models. Options: an open-weight base model via a provider with a raw completions endpoint; a small base model in the browser (e.g. GPT-2 via transformers.js); or recorded examples only. Investigate first, since layer 1 depends on it.
+- ~~**Base model source for layer 1.**~~ Decided, see section 10.
 - **Hosted provider and model** for live chat, and the daily budget.
 - **BYOK providers:** which ones allow direct browser calls (CORS). Check each.
-- **Frontend framework.**
+- ~~**Frontend framework.**~~ Decided, see section 10.
 - **Analytics and logging:** what, if anything, is stored about visitor chats. Default: nothing beyond aggregate counts.
 - **Languages:** English only at first, or multilingual?
 - **License:** e.g. MIT for code, CC BY for text.
@@ -87,3 +87,27 @@ Three modes, in priority order:
 
 - Check `turing-test-kitchen` is free on GitHub, and check domains (e.g. turingtestkitchen.com / .org / .dev).
 - Avoid any visual resemblance to the America's Test Kitchen brand.
+
+## 10. Decisions
+
+### Base model source for layer 1 (October 2026)
+
+**Decision: recorded examples from an open-weight base model are the main path. An in-browser tiny base model is a later, optional "try it yourself". No hosted live base model for now.**
+
+What we found:
+
+- **Hosted base models are scarce and churn.** Major chat APIs don't offer base models. Llama 3.1 405B Base has been served on a raw `/v1/completions` endpoint by Hyperbolic and listed on OpenRouter, but listings are old and providers are retiring 405B models (e.g. IONOS deprecated its 405B in September 2026; Together doesn't serve the base model serverlessly). Not something to build live chat on.
+- **In-browser is feasible but heavy.** transformers.js runs small models (SmolLM2-135M class, ~100–170 MB download) in the browser, with WebGPU in Chromium browsers. That breaks "no big downloads" on the main path and gives noticeably weaker text, so it fits as an opt-in extra on layer 1, not the default.
+- **Recorded examples meet every principle**: zero setup, the exact prompt and output shown, labelled with the model and date, and they keep working when a model is retired.
+
+How it's built: `scripts/capture.ts` sends the output of `assemble()` to any OpenAI-compatible `/v1/completions` endpoint (a hosted base model, or a local llama.cpp/vLLM server running a small base model) and stores the exact request and raw response. See `examples/README.md`.
+
+Still open: which exact base model(s) to capture from. Suggested: one large hosted base model if still available, plus one small local base model.
+
+### Stack
+
+- **Vite + React + TypeScript**, built as a static site (`dist/`, relative paths, hash routing), so it can be hosted anywhere, including Cloudflare Pages next to the M2 Workers proxy.
+- **Vitest** for unit and component tests.
+- **`@huggingface/jinja`** renders real chat templates in the browser for layer 2. Templates are vendored in `src/data/chat-templates.json` with their source recorded.
+- **`tsx`** runs the capture script, which reuses `assemble()` so recorded requests match the inspector exactly.
+- One request shape everywhere: OpenAI-compatible `/v1/completions` (layers 1–2) and `/v1/chat/completions` (layers 3+).
