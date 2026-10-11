@@ -15,7 +15,7 @@ import { specs } from "./specs";
 const { values } = parseArgs({
   options: {
     spec: { type: "string", multiple: true },
-    layer: { type: "string" },
+    layer: { type: "string", multiple: true },
     "base-url": { type: "string" },
     model: { type: "string" },
     provider: { type: "string" },
@@ -32,7 +32,7 @@ if (!baseUrl || !model || !provider) {
 }
 
 const chosen = specs.filter(
-  (s) => values.spec?.includes(s.id) || (values.layer !== undefined && String(s.layer) === values.layer),
+  (s) => values.spec?.includes(s.id) || values.layer?.includes(String(s.layer)),
 );
 if (chosen.length === 0) {
   console.error("No specs selected.");
