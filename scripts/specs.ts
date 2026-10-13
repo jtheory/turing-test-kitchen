@@ -29,6 +29,22 @@ const chat: Settings = { max_tokens: 200, temperature: 0.7 };
 
 export const specs: CaptureSpec[] = [
   {
+    id: "layer1-john",
+    layer: 1,
+    title: "Hi, my name is John",
+    notes: "The opening line of a chat, sent with nothing around it. The model doesn't reply to John; it carries on writing John's text.",
+    settings: base,
+    document: "Hi my name is John",
+  },
+  {
+    id: "layer1-empty",
+    layer: 1,
+    title: "No text at all",
+    notes: "With nothing to continue, the model starts a document of its own, of whatever kind is likely.",
+    settings: base,
+    document: "",
+  },
+  {
     id: "layer1-diary",
     layer: 1,
     title: "A diary entry",

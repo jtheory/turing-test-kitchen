@@ -111,3 +111,15 @@ Still open: which exact base model(s) to capture from. Suggested: one large host
 - **`@huggingface/jinja`** renders real chat templates in the browser for layer 2. Templates are vendored in `src/data/chat-templates.json` with their source recorded.
 - **`tsx`** runs the capture script, which reuses `assemble()` so recorded requests match the inspector exactly.
 - One request shape everywhere: OpenAI-compatible `/v1/completions` (layers 1–2) and `/v1/chat/completions` (layers 3+).
+
+## 11. Collected pieces (not yet placed)
+
+Ideas worth keeping before we know exactly where they fit.
+
+- **One message through every layer.** Use the same opening, "Hi my name is John", as the thread through the tour. Layer 1: a base model doesn't reply, it continues John's text (finishes the sentence, writes the rest of his post or email, sometimes "Johnson"). Layer 2: the same line wrapped in a chat template gets a reply. Layer 3: ask "What's my name?" next and it doesn't know. Layer 4: now it does. Captured as `layer1-john` (and later matching specs for the other layers).
+- **Tokens show through.** Text without a final space or full stop is often continued mid-word ("John" → "Johnson"), because the model works in word pieces. Possibly a small sidebar on layer 1, plus a trailing-space example.
+- **The empty prompt.** With no text at all, a base model starts a document of its own choosing (`layer1-empty`). Some providers reject an empty prompt; if so, record that refusal honestly or drop the exhibit.
+- **Exhibit library** of empathy and attachment techniques: see `docs/research/empathy-triggers.md`.
+- **Local testing with BYOK first.** While developing locally, call the provider from the browser with the developer's own key, stored locally. This moves part of M5 earlier, as a dev tool, before the hosted proxy exists. OpenRouter accepts browser calls; most providers' CORS support still needs checking.
+- **Hosted key, locked down.** OpenRouter supports per-key credit limits with daily, weekly or monthly resets, created through its provisioning-key API, so a key that simply stops when it runs out is possible. That key must still sit behind our proxy, never in the browser, with the per-visitor rate limits and model allowlist from section 5.
+- **Visitor contributions** ("add $20 of model usage"): appealing, but hard to keep safe. Parked until the hosted tier exists.
