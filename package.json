@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "capture": "tsx scripts/capture.ts"
+    "capture": "tsx scripts/capture.ts",
+    "models": "tsx scripts/models.ts"
   },
   "dependencies": {
     "@huggingface/jinja": "^0.5.10",

@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { DocumentPlayground } from "./Layers";
 import { LiveProvider } from "../lib/live";
-import { looksBase } from "./LivePanel";
+import { looksBase } from "../lib/models";
 
 beforeEach(() => localStorage.clear());
 afterEach(() => {

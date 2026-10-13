@@ -41,6 +41,7 @@ npm test           # unit and component tests
 npm run typecheck
 npm run build      # static site in dist/
 npm run capture    # record examples; see examples/README.md
+npm run models     # refresh data/openrouter/models.json and show your key's limit
 ```
 
 **Live model while developing:** in `npm run dev`, the "Live model" button in the header takes an OpenAI-compatible provider address (default OpenRouter), your API key and a base model id. They're kept in your browser's localStorage and the key is sent only to that provider. Production builds leave this out entirely.
@@ -53,6 +54,7 @@ Code map:
 - `src/lib/live.tsx`, `src/components/LivePanel.tsx`: the development-only live model settings.
 - `src/lib/storage.ts`: guarded localStorage helpers for everything the site remembers.
 - `src/lib/templates.ts`, `src/data/chat-templates.json`: real chat templates for layer 2.
+- `scripts/models.ts`: snapshot of OpenRouter's model list (prices, context, parameters, likely base models). Commit the snapshot so model choices can be reviewed from the repo. `--endpoints <id,…>` also saves which hosts serve given models.
 - `scripts/specs.ts`, `scripts/capture.ts`: what to record, and the script that records it.
 - `src/content/layers.ts`: the plain-language copy for each layer.
 

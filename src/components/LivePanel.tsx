@@ -1,5 +1,6 @@
 import { useId, useState } from "react";
 import { DEFAULT_BASE_URL, useLive } from "../lib/live";
+import { looksBase } from "../lib/models";
 
 /** Settings for live model access with your own key. Development builds only. */
 export function LivePanel() {
@@ -101,9 +102,4 @@ export function LivePanel() {
       )}
     </section>
   );
-}
-
-/** A guess from the name only; providers don't label base models consistently. */
-export function looksBase(label: string): boolean {
-  return /(^|[-_/.(\s])base($|[-_.:)\s])/i.test(label) && !/instruct|chat/i.test(label);
 }
