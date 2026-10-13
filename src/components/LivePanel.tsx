@@ -1,10 +1,10 @@
 import { useId, useState } from "react";
-import { DEFAULT_BASE_URL, useLive } from "../lib/live";
+import { DEFAULT_BASE_URL, DEFAULT_CHAT_MODEL, useLive } from "../lib/live";
 import { looksBase } from "../lib/models";
 
 /** Settings for live model access with your own key. Development builds only. */
 export function LivePanel() {
-  const { settings, update, ready, setPanelOpen } = useLive();
+  const { settings, update, chatReady, setPanelOpen } = useLive();
   const [showKey, setShowKey] = useState(false);
   const [models, setModels] = useState<string[]>([]);
   const [modelsNote, setModelsNote] = useState<string>();
@@ -36,7 +36,7 @@ export function LivePanel() {
     <section className="live-panel" aria-label="Live model settings">
       <div className="live-panel-head">
         <h2>Live model</h2>
-        <span className={`status ${ready ? "status-on" : ""}`}>{ready ? "Ready" : "Not set up"}</span>
+        <span className={`status ${chatReady ? "status-on" : ""}`}>{chatReady ? "Ready" : "Not set up"}</span>
         <button className="link" onClick={() => setPanelOpen(false)}>
           Close
         </button>
@@ -74,12 +74,23 @@ export function LivePanel() {
       </label>
 
       <label className="field">
-        <span>Base model for layer 1 (not a chat or instruct model)</span>
+        <span>Chat model for the tour</span>
+        <input
+          list={listId}
+          value={settings.chatModel}
+          placeholder={DEFAULT_CHAT_MODEL}
+          onChange={(e) => update({ chatModel: e.target.value })}
+          spellCheck={false}
+        />
+      </label>
+
+      <label className="field">
+        <span>Base model for "Under the hood" (optional; not a chat or instruct model)</span>
         <span className="row">
           <input
             list={listId}
             value={settings.baseModel}
-            placeholder="e.g. a model id ending in -base"
+            placeholder="none set"
             onChange={(e) => update({ baseModel: e.target.value })}
             spellCheck={false}
           />
@@ -87,12 +98,12 @@ export function LivePanel() {
             Load list
           </button>
         </span>
-        <datalist id={listId}>
-          {models.map((m) => (
-            <option key={m} value={m} />
-          ))}
-        </datalist>
       </label>
+      <datalist id={listId}>
+        {models.map((m) => (
+          <option key={m} value={m} />
+        ))}
+      </datalist>
       {modelsNote && <p className="muted small">{modelsNote}</p>}
 
       {settings.apiKey && (

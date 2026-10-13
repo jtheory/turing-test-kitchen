@@ -35,7 +35,13 @@ export function Inspector({ request, response, tokens, notSentNote, failure }: P
         </div>
       </div>
 
-      <h5>Sent to the model</h5>
+      <h5>Sent</h5>
+      {request.kind === "chat" && (
+        <p className="meta">
+          Exactly what this site sends. The provider reformats it before the model reads it.{" "}
+          <a href="#/under-the-hood">How?</a>
+        </p>
+      )}
       {view === "readable" ? (
         <>
           <p className="meta">

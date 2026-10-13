@@ -2,7 +2,7 @@
 
 **See how a chatbot is put together, one layer at a time.**
 
-Turing Test Kitchen is an educational web app for non-technical people. It starts with a bare language model that only predicts the next words in a piece of text. Then it adds one ingredient at a time (chat formatting, memory, hidden instructions, a persona, human-like tricks) until the result reads like a person.
+Turing Test Kitchen is an educational web app for non-technical people. It starts with a strong chat model sent a single message and nothing else. Then it adds, one ingredient at a time, what a chat app wraps around it (memory, hidden instructions, a persona, notes about you, human-like tricks) until the result reads like a person.
 
 At every step you can see **exactly what text goes into the model and what comes out**. Nothing is hidden.
 
@@ -12,14 +12,16 @@ People who use chatbots but don't build them, and who wonder what's really going
 
 ## What you'll see
 
-1. **Plain text prediction**: a model that just continues text, with no "conversation" at all.
-2. **Chat formatting**: how a conversation is turned into one long piece of text.
-3. **One message at a time**: the model on its own has no memory.
-4. **Memory**: the app re-sends the whole conversation each turn.
-5. **Hidden instructions**: a short note the user never sees shapes the whole personality.
-6. **Randomness**: why the same question gets different answers.
-7. **Long-term memory**: how notes about you get slipped into the text.
-8. **Human-like tricks**: typing delays, typos, short replies, pretending not to know things.
+1. **The bare model**: a strong chat model sent one message and nothing else.
+2. **Memory is re-sending**: the app re-sends the whole conversation each turn.
+3. **Hidden instructions**: the long note the app puts before your first word.
+4. **Persona**: one hidden sentence changes the whole personality.
+5. **Randomness**: why the same question gets different answers.
+6. **Long-term memory**: how notes about you get slipped into the text.
+7. **Tools and lookups**: "it looked it up" means text pasted into the prompt.
+8. **Human-like finish**: typing delays, short replies, pretending not to know things.
+
+Plus **Under the hood**: the hidden formatting step between your message and the model, shown for real with open models.
 
 ## Principles
 
@@ -30,7 +32,7 @@ People who use chatbots but don't build them, and who wonder what's really going
 
 ## Status
 
-Milestone M1 (skeleton and inspector) in progress: layers 1–4, the inspector and the mobile layout are built. Recorded examples still need capturing from real models; see [examples/README.md](examples/README.md). Plan and decisions: [PLAN.md](PLAN.md).
+Milestone M1 (skeleton and inspector) in progress: layer 1 (the bare model, live in development builds), layer 2 (memory), the "Under the hood" aside, the inspector and the mobile layout are built. Recorded examples still need capturing from real models; see [examples/README.md](examples/README.md). Plan and decisions: [PLAN.md](PLAN.md).
 
 ## Development
 
@@ -44,16 +46,16 @@ npm run capture    # record examples; see examples/README.md
 npm run models     # refresh data/openrouter/models.json and show your key's limit
 ```
 
-**Live model while developing:** in `npm run dev`, the "Live model" button in the header takes an OpenAI-compatible provider address (default OpenRouter), your API key and a base model id. They're kept in your browser's localStorage and the key is sent only to that provider. Production builds leave this out entirely.
+**Live model while developing:** in `npm run dev`, the "Live model" button in the header takes an OpenAI-compatible provider address (default OpenRouter), your API key, a chat model (default `anthropic/claude-sonnet-5.5`) and optionally a base model for the "Under the hood" page. They're kept in your browser's localStorage and the key is sent only to that provider. Production builds leave this out entirely.
 
 Code map:
 
-- `src/lib/assemble.ts`: `assemble(layerConfig, conversation) -> request`, the single source of what the model receives.
+- `src/lib/assemble.ts`: `assemble(config, conversation) -> request`, the single source of what the model receives. Modes: `single` (bare model), `transcript` (memory), `document` and `template` (under the hood).
 - `src/components/Inspector.tsx`: shows that request and the raw response, readable or byte-exact.
 - `src/lib/send.ts`: sends an assembled request (shared by the site and the capture script).
 - `src/lib/live.tsx`, `src/components/LivePanel.tsx`: the development-only live model settings.
 - `src/lib/storage.ts`: guarded localStorage helpers for everything the site remembers.
-- `src/lib/templates.ts`, `src/data/chat-templates.json`: real chat templates for layer 2.
+- `src/lib/templates.ts`, `src/data/chat-templates.json`: real chat templates for the "Under the hood" page.
 - `scripts/models.ts`: snapshot of OpenRouter's model list (prices, context, parameters, likely base models). Commit the snapshot so model choices can be reviewed from the repo. `--endpoints <id,…>` also saves which hosts serve given models.
 - `scripts/specs.ts`, `scripts/capture.ts`: what to record, and the script that records it.
 - `src/content/layers.ts`: the plain-language copy for each layer.

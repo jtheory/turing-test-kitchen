@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { assemble } from "./assemble";
 import { HttpError, send, type FetchLike } from "./send";
 
-const req = assemble({ layer: 1, model: "m", settings: { max_tokens: 5, temperature: 0 } }, { document: "Hi" });
+const req = assemble({ mode: "document", model: "m", settings: { max_tokens: 5, temperature: 0 } }, { document: "Hi" });
 
 describe("send", () => {
   it("posts the exact body to the provider path, with the key", async () => {

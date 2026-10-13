@@ -18,14 +18,14 @@ export async function capture(
   now: () => Date = () => new Date(),
 ): Promise<RecordedExample> {
   const turns: RecordedTurn[] = [];
-  if (spec.layer === 1) {
-    const request = assemble({ layer: 1, model: ep.model, settings: spec.settings }, { document: spec.document });
+  if (spec.mode === "document") {
+    const request = assemble({ mode: "document", model: ep.model, settings: spec.settings }, { document: spec.document });
     turns.push({ request, response: await send(request, ep, fetchFn) });
   } else {
     const messages: ChatMessage[] = [];
     for (const content of spec.userTurns) {
       messages.push({ role: "user", content });
-      const request = assemble({ layer: spec.layer, model: ep.model, settings: spec.settings }, { messages });
+      const request = assemble({ mode: spec.mode, model: ep.model, settings: spec.settings }, { messages });
       const response = await send(request, ep, fetchFn);
       const reply = responseText(response);
       if (reply === undefined) throw new Error(`No reply text in response for ${spec.id}`);
@@ -35,7 +35,8 @@ export async function capture(
   }
   return {
     id: spec.id,
-    layer: spec.layer,
+    section: spec.section,
+    mode: spec.mode,
     title: spec.title,
     model: ep.model,
     provider: ep.provider,

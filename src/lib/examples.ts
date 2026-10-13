@@ -1,4 +1,4 @@
-import type { RecordedExample } from "./types";
+import type { RecordedExample, Section } from "./types";
 
 /** Check that a recorded example is internally consistent. Returns a list of problems. */
 export function validateExample(ex: RecordedExample, fileId?: string): string[] {
@@ -8,7 +8,7 @@ export function validateExample(ex: RecordedExample, fileId?: string): string[] 
   if (!ex.provider) problems.push("missing provider");
   if (Number.isNaN(Date.parse(ex.captured_at))) problems.push("captured_at is not a date");
   if (!Array.isArray(ex.turns) || ex.turns.length === 0) problems.push("no turns");
-  const expectedKind = ex.layer <= 2 ? "completion" : "chat";
+  const expectedKind = ex.mode === "document" || ex.mode === "template" ? "completion" : "chat";
   ex.turns?.forEach((t, i) => {
     if (t.request.kind !== expectedKind) problems.push(`turn ${i}: expected a ${expectedKind} request`);
     if (t.request.body.model !== ex.model) problems.push(`turn ${i}: request model differs from example model`);
@@ -23,9 +23,9 @@ export function validateExample(ex: RecordedExample, fileId?: string): string[] 
 
 const modules = import.meta.glob<RecordedExample>("../../examples/*.json", { eager: true, import: "default" });
 
-/** All recorded examples shipped with the site, grouped by layer. */
+/** All recorded examples shipped with the site. */
 export const examples: RecordedExample[] = Object.values(modules).sort((a, b) => a.id.localeCompare(b.id));
 
-export function examplesForLayer(layer: number): RecordedExample[] {
-  return examples.filter((e) => e.layer === layer);
+export function examplesFor(section: Section): RecordedExample[] {
+  return examples.filter((e) => e.section === section);
 }

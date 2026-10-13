@@ -10,7 +10,8 @@ afterEach(cleanup);
 const settings = { max_tokens: 10, temperature: 0 };
 const fixture: RecordedExample = {
   id: "test",
-  layer: 4,
+  section: "memory",
+  mode: "transcript",
   title: "Fixture",
   model: "fixture-model",
   provider: "test",

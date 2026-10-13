@@ -6,8 +6,9 @@ Format (`RecordedExample` in `src/lib/types.ts`):
 
 ```json
 {
-  "id": "layer3-name",
-  "layer": 3,
+  "id": "memory-without",
+  "section": "memory",
+  "mode": "single",
   "title": "…",
   "model": "…",
   "provider": "…",
@@ -25,23 +26,20 @@ Format (`RecordedExample` in `src/lib/types.ts`):
 The prompts live in `scripts/specs.ts`. Point the script at any OpenAI-compatible server:
 
 ```sh
-# Layer 1 needs a *base* model and a raw /v1/completions endpoint.
-CAPTURE_API_KEY=... npm run capture -- --layer 1 \
-  --base-url https://provider.example --model <base-model-id> --provider "<Provider>"
+# The tour (layers 1–2): a chat model, /v1/chat/completions.
+npm run capture -- --section bare --section memory \
+  --base-url https://openrouter.ai/api --model anthropic/claude-sonnet-5.5 --provider OpenRouter
 
-# Layers 3–4 need a chat model and /v1/chat/completions.
-CAPTURE_API_KEY=... npm run capture -- --layer 3 --layer 4 ...   # or --spec <id>
+# Under the hood: a *base* model and a raw /v1/completions endpoint.
+# OpenRouter lists no base models (Oct 2026), so run one locally (e.g. llama.cpp).
+npm run capture -- --section under-the-hood \
+  --base-url http://localhost:8080 --model <base-model-file> --provider "local llama.cpp"
 ```
 
 `--base-url` is the server root; the script appends `/v1/completions` or `/v1/chat/completions`. The API key is read from `CAPTURE_API_KEY`, or from a `.env` file in the project root (copy `.env.example`; `.env` is gitignored). It is never written into the examples.
 
 A local server works too, for example llama.cpp (`llama-server -m <model>.gguf`, then `--base-url http://localhost:8080`) or vLLM.
 
-### Layer 1: base model source
+### Base models (under the hood)
 
-See "Decisions" in `PLAN.md`. Recommended: capture from an open-weight base model (not an instruct/chat version), and record the exact model name. Good candidates:
-
-- **Large hosted base model**, for the most fluent text: Llama 3.1 405B Base has been offered on a raw completions endpoint by Hyperbolic and through OpenRouter. Check it's still listed before relying on it.
-- **Small open base model run locally** (e.g. SmolLM2 or Qwen base checkpoints via llama.cpp or vLLM): reproducible and immune to deprecation.
-
-Capturing from both shows that "bigger" changes fluency, not the nature of the thing.
+OpenRouter's catalog had no base models in the 13 October 2026 snapshot. Capture these from a base (not instruct) model served locally, e.g. llama.cpp's `llama-server` with a base model file, and record its exact name in `--model`.

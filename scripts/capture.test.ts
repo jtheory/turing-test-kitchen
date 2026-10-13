@@ -25,43 +25,43 @@ const ep = { baseUrl: "http://test/", model: "test-model", provider: "test", api
 const spec = (id: string) => specs.find((s) => s.id === id)!;
 
 describe("capture", () => {
-  it("sends layer 1 documents to the completions endpoint", async () => {
+  it("sends documents to the completions endpoint", async () => {
     const { calls, fetchFn } = fakeServer();
-    const ex = await capture(spec("layer1-diary"), ep, fetchFn, () => new Date("2026-01-01T00:00:00Z"));
+    const ex = await capture(spec("hood-script"), ep, fetchFn, () => new Date("2026-01-01T00:00:00Z"));
     expect(calls[0].url).toBe("http://test/v1/completions");
     expect(calls[0].headers.authorization).toBe("Bearer k");
     expect(ex.turns[0].request.body).toEqual(calls[0].body);
     expect(ex.captured_at).toBe("2026-01-01T00:00:00.000Z");
-    expect(validateExample(ex, "layer1-diary")).toEqual([]);
+    expect(validateExample(ex, "hood-script")).toEqual([]);
   });
 
-  it("layer 3 sends each message alone", async () => {
+  it("single mode sends each message alone", async () => {
     const { calls, fetchFn } = fakeServer();
-    const ex = await capture(spec("layer3-name"), ep, fetchFn);
+    const ex = await capture(spec("memory-without"), ep, fetchFn);
     expect(calls).toHaveLength(2);
     expect((calls[1].body as { messages: unknown[] }).messages).toHaveLength(1);
     expect(validateExample(ex)).toEqual([]);
   });
 
-  it("layer 4 feeds each real reply back into the transcript", async () => {
+  it("transcript mode feeds each real reply back into the transcript", async () => {
     const { calls, fetchFn } = fakeServer();
-    await capture(spec("layer4-name"), ep, fetchFn);
+    await capture(spec("memory-with"), ep, fetchFn);
     expect((calls[1].body as { messages: unknown[] }).messages).toEqual([
-      { role: "user", content: (spec("layer4-name") as { userTurns: string[] }).userTurns[0] },
+      { role: "user", content: (spec("memory-with") as { userTurns: string[] }).userTurns[0] },
       { role: "assistant", content: "reply 1" },
-      { role: "user", content: (spec("layer4-name") as { userTurns: string[] }).userTurns[1] },
+      { role: "user", content: (spec("memory-with") as { userTurns: string[] }).userTurns[1] },
     ]);
   });
 
   it("never stores the API key", async () => {
     const { fetchFn } = fakeServer();
-    const ex = await capture(spec("layer4-name"), { ...ep, apiKey: "secret-key-123" }, fetchFn);
+    const ex = await capture(spec("memory-with"), { ...ep, apiKey: "secret-key-123" }, fetchFn);
     expect(JSON.stringify(ex)).not.toContain("secret-key-123");
   });
 
   it("fails loudly on HTTP errors", async () => {
     const fetchFn: FetchLike = async () => ({ ok: false, status: 401, text: async () => "bad key" });
-    await expect(capture(spec("layer1-diary"), ep, fetchFn)).rejects.toThrow("HTTP 401");
+    await expect(capture(spec("hood-script"), ep, fetchFn)).rejects.toThrow("HTTP 401");
   });
 });
 
