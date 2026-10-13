@@ -59,8 +59,7 @@ Three modes, in priority order:
 ## 6. Open questions
 
 - ~~**Base model source for layer 1.**~~ Decided, see section 10.
-- **Hosted provider and model** for live chat, and the daily budget. Direction: OpenRouter, see `docs/research/inference-providers.md`.
-- **BYOK providers:** which ones allow direct browser calls (CORS). OpenRouter and Anthropic do; OpenAI and Hugging Face still need a real-browser check. See the same notes.
+- ~~**Hosted provider.**~~ Decided, see section 10. Still open: which live model(s), and the daily budget.
 - ~~**Frontend framework.**~~ Decided, see section 10.
 - **Analytics and logging:** what, if anything, is stored about visitor chats. Default: nothing beyond aggregate counts.
 - **Languages:** English only at first, or multilingual?
@@ -104,6 +103,22 @@ How it's built: `scripts/capture.ts` sends the output of `assemble()` to any Ope
 
 Still open: which exact base model(s) to capture from. Suggested: one large hosted base model if still available, plus one small local base model.
 
+### Inference provider (October 2026)
+
+**Decision: OpenRouter only, for every layer and every mode. Funded by the project to start. BYOK and donated keys come later, also OpenRouter only.**
+
+Why:
+
+- **It's the only well-known provider that covers the whole tour** with one OpenAI-compatible request shape: base models and raw text for layers 1–2, chat for layers 3+, many cheap open-weight models. OpenAI and Anthropic have no base models and don't accept raw templated text, so they could only ever serve layers 3+.
+- **Its key controls fit our limits.** Per-key dollar limits with daily, weekly or monthly reset, plus expiry, created through its key-management API. The same controls make donated keys low-risk for donors later, and its "Connect OpenRouter" sign-in (OAuth PKCE) can give BYOK visitors a capped key without pasting one.
+- **It doesn't close doors.** Donors who prefer OpenAI or Anthropic can attach those keys to an OpenRouter account, and we keep one code path.
+
+Not doing for now: direct OpenAI, Anthropic or Hugging Face support, and so no need to check their browser (CORS) support or spend controls. Revisit only if BYOK users ask for them. Cloudflare AI Gateway stays an option for per-visitor dollar budgets in the proxy.
+
+Before building on it, check: that layer 2's rendered template text reaches chat models untouched (may need pinned hosts), and what an expired or exhausted key returns so the proxy can fall back to recorded examples.
+
+Details and sources: `docs/research/inference-providers.md`.
+
 ### Stack
 
 - **Vite + React + TypeScript**, built as a static site (`dist/`, relative paths, hash routing), so it can be hosted anywhere, including Cloudflare Pages next to the M2 Workers proxy.
@@ -122,5 +137,5 @@ Ideas worth keeping before we know exactly where they fit.
 - **Exhibit library** of empathy and attachment techniques: see `docs/research/empathy-triggers.md`.
 - **Local testing with BYOK first.** While developing locally, call the provider from the browser with the developer's own key, stored locally. This moves part of M5 earlier, as a dev tool, before the hosted proxy exists. OpenRouter accepts browser calls; most providers' CORS support still needs checking.
 - **Hosted key, locked down.** OpenRouter supports per-key credit limits with daily, weekly or monthly resets, created through its provisioning-key API, so a key that simply stops when it runs out is possible. That key must still sit behind our proxy, never in the browser, with the per-visitor rate limits and model allowlist from section 5.
-- **Visitor contributions** ("add $20 of model usage"): appealing, but hard to keep safe. Parked until the hosted tier exists. Likely shape: donated OpenRouter keys with a dollar limit and an expiry, kept server-side behind the proxy; OpenAI and Anthropic later for chat layers only. See `docs/research/inference-providers.md`.
+- **Visitor contributions** ("add $20 of model usage"): appealing, but hard to keep safe. Parked until the hosted tier exists. Likely shape: donated OpenRouter keys with a dollar limit and an expiry, kept server-side behind the proxy. See `docs/research/inference-providers.md`.
 - **Cloudflare AI Gateway** could enforce per-visitor dollar budgets and rate limits in front of any provider, instead of hand-written spend tracking in the Worker.

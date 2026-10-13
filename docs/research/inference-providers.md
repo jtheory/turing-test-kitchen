@@ -2,6 +2,8 @@
 
 Is OpenRouter the right long-term backend, and should donated or visitor keys also work with OpenAI and Anthropic? Researched October 2026. Nothing here is built yet; it's to make sure we start in a good direction.
 
+**Outcome:** OpenRouter only for now, see the decision in `PLAN.md` section 10. The OpenAI, Anthropic and Hugging Face notes below are kept for if BYOK users ask for them later.
+
 **Caveat on sources.** The sandbox could search the web but not open provider sites or send test requests, so several points come from changelogs, mirrors and third-party write-ups. Items marked *verify* need a real request before we rely on them.
 
 ## Short answer
@@ -82,9 +84,8 @@ OpenAI and Anthropic can't meet the first two at all: no base models, and no way
 - Leave room for a second request shape (Anthropic Messages) in `assemble()` without building it yet.
 - Keep `DEFAULT_BASE_URL` as OpenRouter.
 
-## To verify before building
+## To verify before building on OpenRouter
 
 - **Layer 2 passthrough:** OpenRouter's completions endpoint with a chat model and our own rendered template. Does the text reach the model untouched, or does some host apply its template again? Likely varies by host; may need to pin hosts with provider routing.
-- **Browser calls** to OpenAI, Anthropic and HF from a real page.
-- **OpenRouter PKCE:** what `limit` caps, allowed callback URLs, and whether we can set an expiry.
+- *Later, with BYOK:* **OpenRouter PKCE:** what `limit` caps, allowed callback URLs, and whether we can set an expiry.
 - **What an expired or exhausted OpenRouter key returns,** so the proxy can switch keys or fall back cleanly.
