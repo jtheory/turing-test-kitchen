@@ -1,9 +1,12 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { specs, type CaptureSpec } from "../../scripts/specs";
-import { assemble } from "../lib/assemble";
+import { assemble, responseText } from "../lib/assemble";
+import { liveAvailable, useLive } from "../lib/live";
+import { HttpError, send } from "../lib/send";
+import { useStoredState } from "../lib/storage";
 import { examplesForLayer } from "../lib/examples";
 import { chatTemplates, specialTokens, templateSource } from "../lib/templates";
-import type { ChatMessage, Role } from "../lib/types";
+import type { ChatMessage, ModelRequest, Role, Settings } from "../lib/types";
 import { Inspector } from "./Inspector";
 import { RecordedExampleView } from "./RecordedExampleView";
 
@@ -51,23 +54,107 @@ function PlannedSpec({ spec }: { spec: CaptureSpec }) {
   );
 }
 
-/** Layer 1 extra: type a document and see exactly what would be sent. */
+/** Layer 1: type the start of a document and, with a live model set up, send it. */
 export function DocumentPlayground() {
-  const [doc, setDoc] = useState("Once upon a time, a robot");
-  const req = assemble({ layer: 1, model: "(base model)", settings: { max_tokens: 120, temperature: 0.8 } }, { document: doc });
+  const live = useLive();
+  const [doc, setDoc] = useStoredState("layer1.document", "Hi my name is John");
+  const [run, setRun] = useState<Run>();
+  const abortRef = useRef<AbortController>(undefined);
+
+  const model = live.settings.baseModel.trim() || "(base model)";
+  const preview = assemble({ layer: 1, model, settings: LAYER1_SETTINGS }, { document: doc });
+  const shown = run ?? { request: preview };
+  const edited = run !== undefined && run.request.kind === "completion" && run.request.body.prompt !== doc;
+
+  async function go() {
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    const request = preview;
+    setRun({ request, pending: true });
+    try {
+      const response = await send(request, live.settings, fetch, controller.signal);
+      setRun({ request, response });
+    } catch (e) {
+      if (controller.signal.aborted) setRun({ request, failure: { summary: "Stopped before a reply came back." } });
+      else setRun({ request, failure: describeFailure(e) });
+    }
+  }
+
+  const generated = shown.response === undefined ? undefined : responseText(shown.response);
+
   return (
     <section className="playground">
-      <h3>Write your own start of a document</h3>
-      <p className="muted">
-        Live text prediction comes in a later version. For now you can see the exact request your text becomes.
-      </p>
+      <h3>Try it: write the start of a document</h3>
       <label className="field">
-        <span>Document</span>
+        <span>Text sent to the model</span>
         <textarea value={doc} onChange={(e) => setDoc(e.target.value)} rows={3} />
       </label>
-      <Inspector request={req} notSentNote="Not sent: live text prediction isn't available yet." />
+
+      {live.ready ? (
+        <div className="actions">
+          {run?.pending ? (
+            <button onClick={() => abortRef.current?.abort()}>Stop</button>
+          ) : (
+            <button className="primary" onClick={go}>
+              {run && !edited ? "Send again" : "Send"}
+            </button>
+          )}
+          <span className="muted small">
+            Live: <code>{model}</code>
+          </span>
+        </div>
+      ) : liveAvailable ? (
+        <p className="muted">
+          To send this to a real base model, <button className="link" onClick={() => live.setPanelOpen(true)}>set up a live model</button>.
+        </p>
+      ) : (
+        <p className="muted">Live text prediction isn't available yet. You can still see the exact request your text becomes.</p>
+      )}
+
+      {run?.pending && <p className="muted" role="status">Waiting for the model…</p>}
+
+      {generated !== undefined && run?.request.kind === "completion" && (
+        <figure className="continuation">
+          <pre className="textview">
+            {run.request.body.prompt}
+            <span className="generated">{generated}</span>
+          </pre>
+          <figcaption>
+            Plain text: what was sent. <span className="generated">Highlighted</span>: what the model added.
+            {edited && " You've edited the text since; send again to see the new version."}
+          </figcaption>
+        </figure>
+      )}
+
+      <Inspector
+        request={shown.request}
+        response={shown.response}
+        failure={shown.failure}
+        notSentNote={run?.pending ? "Waiting…" : "Not sent yet."}
+      />
     </section>
   );
+}
+
+const LAYER1_SETTINGS: Settings = { max_tokens: 120, temperature: 0.8 };
+
+interface Run {
+  request: ModelRequest;
+  response?: unknown;
+  failure?: { summary: string; raw?: string };
+  pending?: boolean;
+}
+
+function describeFailure(e: unknown): { summary: string; raw?: string } {
+  if (e instanceof HttpError) {
+    return { summary: `The provider answered with an error (HTTP ${e.status}). Its exact reply:`, raw: e.body };
+  }
+  return {
+    summary:
+      "The request didn't get a reply. The address may be wrong, you may be offline, or the provider may not accept requests from a browser.",
+    raw: e instanceof Error ? e.message : String(e),
+  };
 }
 
 const startingChat: ChatMessage[] = [

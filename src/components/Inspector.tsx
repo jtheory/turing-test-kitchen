@@ -10,10 +10,12 @@ interface Props {
   tokens?: string[];
   /** Shown when there is no response. */
   notSentNote?: string;
+  /** The request failed: a plain summary, and the provider's raw error body if there was one. */
+  failure?: { summary: string; raw?: string };
 }
 
 /** The exact request sent to the model and the exact response that came back. */
-export function Inspector({ request, response, tokens, notSentNote }: Props) {
+export function Inspector({ request, response, tokens, notSentNote, failure }: Props) {
   const [view, setView] = useState<"readable" | "exact">("readable");
   const { model, ...rest } = request.body;
   const settings = Object.entries(rest).filter(([k]) => k !== "prompt" && k !== "messages");
@@ -68,7 +70,12 @@ export function Inspector({ request, response, tokens, notSentNote }: Props) {
       )}
 
       <h5>Came back</h5>
-      {response === undefined ? (
+      {failure ? (
+        <>
+          <p className="error">{failure.summary}</p>
+          {failure.raw !== undefined && <pre className="json">{failure.raw}</pre>}
+        </>
+      ) : response === undefined ? (
         <p className="muted">{notSentNote ?? "Not sent."}</p>
       ) : view === "readable" ? (
         out === undefined ? (

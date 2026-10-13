@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { ChatFormatting, DocumentPlayground, RecordedExamples } from "./components/Layers";
+import { LivePanel } from "./components/LivePanel";
 import { layers } from "./content/layers";
+import { liveAvailable, useLive } from "./lib/live";
 
 function layerFromHash(): number {
   const n = Number(location.hash.match(/^#\/layer\/(\d+)$/)?.[1]);
@@ -18,6 +20,7 @@ export function App() {
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
 
+  const live = useLive();
   const info = layers.find((l) => l.n === current);
   const next = layers.find((l) => l.n === current + 1 && l.available);
 
@@ -25,7 +28,19 @@ export function App() {
     <>
       <a className="skip" href="#main">Skip to content</a>
       <header className="site">
-        <a href="#/" className="brand">Turing Test Kitchen</a>
+        <div className="site-top">
+          <a href="#/" className="brand">Turing Test Kitchen</a>
+          {liveAvailable && (
+            <button
+              className="live-toggle"
+              aria-expanded={live.panelOpen}
+              onClick={() => live.setPanelOpen(!live.panelOpen)}
+            >
+              <span className={`dot ${live.ready ? "dot-on" : ""}`} aria-hidden="true" />
+              Live model{live.ready ? "" : ": off"}
+            </button>
+          )}
+        </div>
         <nav aria-label="Layers">
           <ol className="layer-nav">
             {layers.map((l) => (
@@ -44,6 +59,7 @@ export function App() {
           </ol>
         </nav>
       </header>
+      {liveAvailable && live.panelOpen && <LivePanel />}
 
       <main id="main">
         {!info ? (
@@ -58,8 +74,8 @@ export function App() {
             ))}
             {info.n === 1 && (
               <>
-                <RecordedExamples layer={1} />
                 <DocumentPlayground />
+                <RecordedExamples layer={1} />
               </>
             )}
             {info.n === 2 && <ChatFormatting />}

@@ -1,39 +1,19 @@
 import { assemble, responseText } from "../src/lib/assemble";
-import type { ChatMessage, ModelRequest, RecordedExample, RecordedTurn } from "../src/lib/types";
+import { send, type Endpoint, type FetchLike } from "../src/lib/send";
+import type { ChatMessage, RecordedExample, RecordedTurn } from "../src/lib/types";
 import type { CaptureSpec } from "./specs";
 
-export interface Endpoint {
-  /** OpenAI-compatible base URL without the /v1 path, e.g. http://localhost:8080 */
-  baseUrl: string;
-  apiKey?: string;
+export type { FetchLike };
+
+export interface CaptureEndpoint extends Endpoint {
   model: string;
   provider: string;
-}
-
-export type FetchLike = (url: string, init: { method: string; headers: Record<string, string>; body: string }) => Promise<{
-  ok: boolean;
-  status: number;
-  text(): Promise<string>;
-}>;
-
-/** Send one assembled request exactly as the inspector shows it. */
-export async function send(req: ModelRequest, ep: Endpoint, fetchFn: FetchLike): Promise<unknown> {
-  const headers: Record<string, string> = { "content-type": "application/json" };
-  if (ep.apiKey) headers.authorization = `Bearer ${ep.apiKey}`;
-  const res = await fetchFn(ep.baseUrl.replace(/\/+$/, "") + req.path, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(req.body),
-  });
-  const text = await res.text();
-  if (!res.ok) throw new Error(`HTTP ${res.status} from ${req.path}: ${text.slice(0, 500)}`);
-  return JSON.parse(text);
 }
 
 /** Run one spec against a real model and return the recorded example. */
 export async function capture(
   spec: CaptureSpec,
-  ep: Endpoint,
+  ep: CaptureEndpoint,
   fetchFn: FetchLike,
   now: () => Date = () => new Date(),
 ): Promise<RecordedExample> {
