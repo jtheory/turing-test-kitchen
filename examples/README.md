@@ -33,7 +33,7 @@ CAPTURE_API_KEY=... npm run capture -- --layer 1 \
 CAPTURE_API_KEY=... npm run capture -- --layer 3 --layer 4 ...   # or --spec <id>
 ```
 
-`--base-url` is the server root; the script appends `/v1/completions` or `/v1/chat/completions`. The API key is read from `CAPTURE_API_KEY` and never written to disk.
+`--base-url` is the server root; the script appends `/v1/completions` or `/v1/chat/completions`. The API key is read from `CAPTURE_API_KEY`, or from a `.env` file in the project root (copy `.env.example`; `.env` is gitignored). It is never written into the examples.
 
 A local server works too, for example llama.cpp (`llama-server -m <model>.gguf`, then `--base-url http://localhost:8080`) or vLLM.
 

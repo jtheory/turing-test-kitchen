@@ -4,13 +4,21 @@
 //     --base-url https://api.example.com --model some/base-model --provider "Example"
 //
 // Options: --spec <id> (repeatable) or --layer <n>, --base-url, --model,
-// --provider. The key is read from CAPTURE_API_KEY and never written to disk.
+// --provider. The key is read from CAPTURE_API_KEY (or from a .env file in the
+// project root) and never written to the examples.
 
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
 import { capture } from "./captureLib";
 import { specs } from "./specs";
+
+// Load .env if present. It is gitignored; see .env.example.
+try {
+  process.loadEnvFile();
+} catch {
+  // No .env: use the shell environment.
+}
 
 const { values } = parseArgs({
   options: {
