@@ -59,8 +59,8 @@ Three modes, in priority order:
 ## 6. Open questions
 
 - ~~**Base model source for layer 1.**~~ Decided, see section 10.
-- **Hosted provider and model** for live chat, and the daily budget.
-- **BYOK providers:** which ones allow direct browser calls (CORS). Check each.
+- **Hosted provider and model** for live chat, and the daily budget. Direction: OpenRouter, see `docs/research/inference-providers.md`.
+- **BYOK providers:** which ones allow direct browser calls (CORS). OpenRouter and Anthropic do; OpenAI and Hugging Face still need a real-browser check. See the same notes.
 - ~~**Frontend framework.**~~ Decided, see section 10.
 - **Analytics and logging:** what, if anything, is stored about visitor chats. Default: nothing beyond aggregate counts.
 - **Languages:** English only at first, or multilingual?
@@ -122,4 +122,5 @@ Ideas worth keeping before we know exactly where they fit.
 - **Exhibit library** of empathy and attachment techniques: see `docs/research/empathy-triggers.md`.
 - **Local testing with BYOK first.** While developing locally, call the provider from the browser with the developer's own key, stored locally. This moves part of M5 earlier, as a dev tool, before the hosted proxy exists. OpenRouter accepts browser calls; most providers' CORS support still needs checking.
 - **Hosted key, locked down.** OpenRouter supports per-key credit limits with daily, weekly or monthly resets, created through its provisioning-key API, so a key that simply stops when it runs out is possible. That key must still sit behind our proxy, never in the browser, with the per-visitor rate limits and model allowlist from section 5.
-- **Visitor contributions** ("add $20 of model usage"): appealing, but hard to keep safe. Parked until the hosted tier exists.
+- **Visitor contributions** ("add $20 of model usage"): appealing, but hard to keep safe. Parked until the hosted tier exists. Likely shape: donated OpenRouter keys with a dollar limit and an expiry, kept server-side behind the proxy; OpenAI and Anthropic later for chat layers only. See `docs/research/inference-providers.md`.
+- **Cloudflare AI Gateway** could enforce per-visitor dollar budgets and rate limits in front of any provider, instead of hand-written spend tracking in the Worker.
