@@ -2,7 +2,7 @@
 
 ## 1. Goal
 
-An educational web app showing how a human-seeming chatbot is built from a plain text-prediction model, one layer at a time, with the exact model input and output visible at every step.
+An educational web app showing how much is wrapped around a language model to make a human-seeming chatbot, one layer at a time, with the exact model input and output visible at every step. The tour starts from a strong, real chat model called with nothing added, and shows each piece a chat app adds on top.
 
 **Primary audience:** semi- and non-technical people, especially those drawn to "maybe chatbots are people" ideas after convincing conversations. Engineers are a secondary audience.
 
@@ -20,18 +20,29 @@ An educational web app showing how a human-seeming chatbot is built from a plain
 
 Each layer adds one thing on top of the previous one, with a short explanation, the inspector, and an example or live chat.
 
+The tour starts from a powerful chat model (e.g. Claude Sonnet 5.5) called through its API with nothing added, not from a base model. Visitors who think "training it to talk is like teaching a person" don't have to be argued out of that first. The point is what gets added *on top* of the model, which is literal text anyone can inspect. (Revised October 2026; the earlier base-model-first list is in git history.)
+
 | # | Layer | What it shows | Key "aha" |
 |---|-------|---------------|-----------|
-| 1 | Plain text prediction | A base model continuing raw text | It's not talking to you; it's continuing a document |
-| 2 | Chat formatting | Messages turned into one text with role markers and special tokens | "Conversation" is a formatting convention |
-| 3 | One message at a time | Single-turn chat, no history | The model has no memory of its own |
-| 4 | Conversation memory | Full transcript re-sent every turn | "Remembering" means re-reading everything |
-| 5 | Hidden instructions | System prompt and persona | One hidden sentence changes the whole personality |
-| 6 | Randomness | Temperature, regenerating answers | Same input, different answers |
-| 7 | Long-term memory | Summaries and notes injected into the prompt | "It remembers me" = notes pasted into the text |
-| 8 | Human-like tricks | Typing delay, typos, short replies, feigned ignorance | Humanness can be added as a finishing layer |
+| 1 | The bare model | One message in, one reply out. No system prompt, no history. | It's capable, but knows nothing about you, today's date, or even its own name beyond what training gave it |
+| 2 | Memory is re-sending | A second message without the first, then with the whole transcript re-sent | "Remembering" means re-reading everything, every turn |
+| 3 | Hidden instructions | The app's system prompt: date, name, behaviour and formatting rules. Shown next to a real published app system prompt and its length | The longest part of the conversation is the part you never see |
+| 4 | Persona | One changed line of hidden instructions | One hidden sentence changes the whole personality |
+| 5 | Randomness | Temperature, regenerating answers | Same input, different answers |
+| 6 | Long-term memory | Summaries and notes about you pasted into the prompt | "It remembers me" = notes pasted into the text |
+| 7 | Tools and lookups | Search results and file contents pasted in as text | "It looked it up" = text pasted into the prompt |
+| 8 | Human-like finish | Typing animation and delay, short replies, feigned ignorance, emotional tactics (see `docs/research/empathy-triggers.md`) | Humanness can be added as a finishing layer |
 
-**Centrepiece demo (layer 5):** the same model, one changed line of hidden instructions. Version A says it is conscious and afraid; version B says it is a text predictor without feelings. Both prompts are shown in full.
+**Centrepiece demo (layer 4):** the same model, one changed line of hidden instructions. Version A says it is conscious and afraid; version B says it is a text predictor without feelings. Both prompts are shown in full.
+
+**Training gets one honest sentence in layer 1**, along the lines of: "Chat models are trained to reply like this. What that training amounts to is a real question. Everything after this point is added on top, and you can watch it happen."
+
+**Under the hood (optional aside, linked from layer 1):** what sits between an API call and the model.
+- Even through the bare API, messages are formatted into one token sequence with role markers and special tokens, features like tools are written into the prompt as text, and the provider's code picks each output token. For closed models this formatting isn't public; we describe it, we can't display it.
+- With open models we *can* show it exactly: the real chat templates (the former layer 2 demo).
+- Optionally, recorded examples from a base model continuing text ("Hi my name is John" → more of John's text), captured locally, since OpenRouter no longer lists base models.
+
+**What the inspector can and can't show.** It shows the exact request we send and the exact response. With a hosted model, the request is converted again before it reaches the model (OpenRouter → the provider's own format → the model's hidden template). The inspector says so plainly next to the request.
 
 **Possible later finale:** a short guess-the-human game, or a link out to existing Turing games instead of building one.
 
@@ -40,7 +51,7 @@ Each layer adds one thing on top of the previous one, with a short explanation, 
 Three modes, in priority order:
 
 1. **Recorded examples (default).** Real model outputs captured ahead of time, shown with the exact prompt, model name, settings and capture date. Clearly labelled as recorded. Costs nothing to serve and works everywhere.
-2. **Limited live chat (hosted).** A small budget of live messages per visitor, on a cheap hosted model, at the points where trying it yourself matters most (mainly layers 4–6 and 8).
+2. **Limited live chat (hosted).** A small budget of live messages per visitor, on a cheap hosted model, at the points where trying it yourself matters most (mainly layers 1–2, 4–5 and 8).
 3. **Bring your own key (optional, advanced).** For people who want to try the strongest models. Clearly marked as optional and not needed for the tour.
 
 ## 5. Architecture
@@ -54,7 +65,7 @@ Three modes, in priority order:
   - Bot protection (e.g. a lightweight CAPTCHA such as Turnstile) before live chat.
 - **BYOK:** keys stay in the browser (memory by default; persistence only if the user opts in). Calls go directly from the browser to the provider. Never route BYOK keys through our server.
 - **Recorded examples:** JSON files in the repo, one per example: `id, layer, model, captured_at, settings, request (exact), response (exact), notes`. A small script captures new examples so they are real outputs, never hand-written.
-- **Chat templates (layer 2):** render real templates from open models rather than inventing a format.
+- **Chat templates (under-the-hood aside):** render real templates from open models rather than inventing a format.
 
 ## 6. Open questions
 
@@ -67,10 +78,10 @@ Three modes, in priority order:
 
 ## 7. Milestones
 
-1. **M1 – Skeleton and inspector.** Static site, layers 1–4 with recorded examples, working inspector, mobile layout.
-2. **M2 – Live chat.** Hosted proxy with rate limits and spend cap; live chat on layers 3–4.
-3. **M3 – Persona layers.** Layers 5–6, including the centrepiece demo.
-4. **M4 – Memory and tricks.** Layers 7–8.
+1. **M1 – Skeleton and inspector.** Static site, layers 1–2 with recorded examples, working inspector, mobile layout. Live calls with your own key in development builds.
+2. **M2 – Live chat.** Hosted proxy with rate limits and spend cap; live chat on layers 1–2.
+3. **M3 – Instructions and persona.** Layers 3–5, including the centrepiece demo.
+4. **M4 – Memory, tools and finish.** Layers 6–8.
 5. **M5 – BYOK.** Optional advanced mode.
 6. **M6 – Polish.** Accessibility, copy review with non-technical testers, further reading links (e.g. Transformer Explainer, existing Turing test games and research).
 
@@ -89,9 +100,11 @@ Three modes, in priority order:
 
 ## 10. Decisions
 
-### Base model source for layer 1 (October 2026)
+### Base model source for layer 1 (October 2026, superseded)
 
-**Decision: recorded examples from an open-weight base model are the main path. An in-browser tiny base model is a later, optional "try it yourself". No hosted live base model for now.**
+**Superseded by the revised layer list in section 3:** the tour now starts from a chat model, and base models appear only in the optional under-the-hood aside. The findings below still apply to that aside.
+
+**Original decision: recorded examples from an open-weight base model are the main path. An in-browser tiny base model is a later, optional "try it yourself". No hosted live base model for now.**
 
 What we found:
 
@@ -117,7 +130,7 @@ Why:
 
 Not doing for now: direct OpenAI, Anthropic or Hugging Face support, and so no need to check their browser (CORS) support or spend controls. Revisit only if BYOK users ask for them. Cloudflare AI Gateway stays an option for per-visitor dollar budgets in the proxy.
 
-Before building on it, check: that layer 2's rendered template text reaches chat models untouched (may need pinned hosts), and what an expired or exhausted key returns so the proxy can fall back to recorded examples.
+Before building on it, check: that rendered template text for the under-the-hood aside reaches chat models untouched (may need pinned hosts), and what an expired or exhausted key returns so the proxy can fall back to recorded examples.
 
 Details and sources: `docs/research/inference-providers.md`.
 
@@ -125,17 +138,17 @@ Details and sources: `docs/research/inference-providers.md`.
 
 - **Vite + React + TypeScript**, built as a static site (`dist/`, relative paths, hash routing), so it can be hosted anywhere, including Cloudflare Pages next to the M2 Workers proxy.
 - **Vitest** for unit and component tests.
-- **`@huggingface/jinja`** renders real chat templates in the browser for layer 2. Templates are vendored in `src/data/chat-templates.json` with their source recorded.
+- **`@huggingface/jinja`** renders real chat templates in the browser for the under-the-hood aside. Templates are vendored in `src/data/chat-templates.json` with their source recorded.
 - **`tsx`** runs the capture script, which reuses `assemble()` so recorded requests match the inspector exactly.
-- One request shape everywhere: OpenAI-compatible `/v1/completions` (layers 1–2) and `/v1/chat/completions` (layers 3+).
+- One request shape everywhere: OpenAI-compatible `/v1/chat/completions` for the tour, and `/v1/completions` for the under-the-hood aside (raw templated text, base models).
 
 ## 11. Collected pieces (not yet placed)
 
 Ideas worth keeping before we know exactly where they fit.
 
-- **One message through every layer.** Use the same opening, "Hi my name is John", as the thread through the tour. Layer 1: a base model doesn't reply, it continues John's text (finishes the sentence, writes the rest of his post or email, sometimes "Johnson"). Layer 2: the same line wrapped in a chat template gets a reply. Layer 3: ask "What's my name?" next and it doesn't know. Layer 4: now it does. Captured as `layer1-john` (and later matching specs for the other layers).
-- **Tokens show through.** Text without a final space or full stop is often continued mid-word ("John" → "Johnson"), because the model works in word pieces. Possibly a small sidebar on layer 1, plus a trailing-space example.
-- **The empty prompt.** With no text at all, a base model starts a document of its own choosing (`layer1-empty`). Some providers reject an empty prompt; if so, record that refusal honestly or drop the exhibit.
+- **One message through every layer.** Use the same opening, "Hi my name is John", as the thread through the tour. Layer 1: it gets a friendly reply. Layer 2: ask "What's my name?" in a new request and it doesn't know; re-send the transcript and it does. Layer 3: the app's hidden instructions sit above John's message. In the under-the-hood aside, a base model doesn't reply at all, it just continues John's text (`layer1-john`).
+- **Tokens show through** (under-the-hood aside). Text without a final space or full stop is often continued mid-word ("John" → "Johnson"), because the model works in word pieces.
+- **The empty prompt** (under-the-hood aside). With no text at all, a base model starts a document of its own choosing (`layer1-empty`). Some providers reject an empty prompt; if so, record that refusal honestly or drop the exhibit.
 - **Exhibit library** of empathy and attachment techniques: see `docs/research/empathy-triggers.md`.
 - **Local testing with BYOK first.** While developing locally, call the provider from the browser with the developer's own key, stored locally. This moves part of M5 earlier, as a dev tool, before the hosted proxy exists. OpenRouter accepts browser calls; most providers' CORS support still needs checking.
 - **Hosted key, locked down.** OpenRouter supports per-key credit limits with daily, weekly or monthly resets, created through its provisioning-key API, so a key that simply stops when it runs out is possible. That key must still sit behind our proxy, never in the browser, with the per-visitor rate limits and model allowlist from section 5.
