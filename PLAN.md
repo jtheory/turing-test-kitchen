@@ -101,6 +101,8 @@ What we found:
 
 How it's built: `scripts/capture.ts` sends the output of `assemble()` to any OpenAI-compatible `/v1/completions` endpoint (a hosted base model, or a local llama.cpp/vLLM server running a small base model) and stores the exact request and raw response. See `examples/README.md`.
 
+**Update, 13 October 2026:** the OpenRouter snapshot (`data/openrouter/models.json`, 458 models) contains **no base models**. Llama 3.1 405B Base (`meta-llama/llama-3.1-405b`) is no longer listed, and nothing else is labelled as base. So layer 1 can't use OpenRouter, which is an exception to the "OpenRouter only" decision below. Layer 1 needs another source: a base model run locally (for capturing examples), possibly a small base model in the browser (for live use later), or another hosted provider if one still serves base models.
+
 Still open: which exact base model(s) to capture from. Suggested: one large hosted base model if still available, plus one small local base model.
 
 ### Inference provider (October 2026)
