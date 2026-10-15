@@ -172,3 +172,4 @@ input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 button.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
 .aside-link { margin-top: 28px; padding: 12px 14px; border: 1px dashed var(--border); border-radius: var(--radius); }
 h2 { font-size: 1.35rem; margin: 36px 0 8px; }
+.usage { margin-top: 6px; }

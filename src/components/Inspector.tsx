@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { responseText, serializeBody } from "../lib/assemble";
+import { responseText, responseUsage, serializeBody, type Usage } from "../lib/assemble";
 import type { ModelRequest } from "../lib/types";
 import { TextView } from "./TextView";
 
@@ -20,6 +20,7 @@ export function Inspector({ request, response, tokens, notSentNote, failure }: P
   const { model, ...rest } = request.body;
   const settings = Object.entries(rest).filter(([k]) => k !== "prompt" && k !== "messages");
   const out = response === undefined ? undefined : responseText(response);
+  const usage = response === undefined ? undefined : responseUsage(response);
 
   return (
     <section className="inspector" aria-label="Inspector">
@@ -87,11 +88,30 @@ export function Inspector({ request, response, tokens, notSentNote, failure }: P
         out === undefined ? (
           <p className="muted">No text in this response. Switch to "Exact data" to see it.</p>
         ) : (
-          <TextView text={out} tokens={tokens} label="Text the model produced" />
+          <>
+            <TextView text={out} tokens={tokens} label="Text the model produced" />
+            {usage && <UsageLine usage={usage} />}
+          </>
         )
       ) : (
         <pre className="json">{JSON.stringify(response, null, 2)}</pre>
       )}
     </section>
+  );
+}
+
+function UsageLine({ usage }: { usage: Usage }) {
+  const { read, wrote, reasoning, costUsd } = usage;
+  if (read === undefined && wrote === undefined) return null;
+  return (
+    <p className="meta usage">
+      The model read <strong>{read ?? "?"}</strong> tokens and wrote <strong>{wrote ?? "?"}</strong>
+      {reasoning ? (
+        <>
+          , including <strong>{reasoning}</strong> of hidden reasoning before the reply
+        </>
+      ) : null}
+      .{costUsd !== undefined && <> Cost: ${costUsd.toFixed(5).replace(/0+$/, "")}.</>}
+    </p>
   );
 }

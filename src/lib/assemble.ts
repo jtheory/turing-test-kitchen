@@ -62,3 +62,24 @@ export function responseText(response: unknown): string | undefined {
   const msg = choice.message as { content?: unknown } | undefined;
   return typeof msg?.content === "string" ? msg.content : undefined;
 }
+
+export interface Usage {
+  read?: number;
+  wrote?: number;
+  reasoning?: number;
+  costUsd?: number;
+}
+
+/** Token counts and cost reported by an OpenAI-compatible response (OpenRouter adds `cost`). */
+export function responseUsage(response: unknown): Usage | undefined {
+  const u = (response as { usage?: Record<string, unknown> })?.usage;
+  if (!u) return undefined;
+  const num = (v: unknown) => (typeof v === "number" ? v : undefined);
+  const details = u.completion_tokens_details as Record<string, unknown> | undefined;
+  return {
+    read: num(u.prompt_tokens),
+    wrote: num(u.completion_tokens),
+    reasoning: num(details?.reasoning_tokens),
+    costUsd: num(u.cost),
+  };
+}

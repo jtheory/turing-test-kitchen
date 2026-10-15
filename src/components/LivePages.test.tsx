@@ -65,21 +65,13 @@ describe("BareModel (layer 1)", () => {
 });
 
 describe("DocumentPlayground (under the hood)", () => {
-  it("needs a base model, not just a key", () => {
+  it("shows the exact request but never sends it", () => {
     store({});
+    const fetchMock = stubFetch({});
     withLive(<DocumentPlayground />);
-    expect(screen.getByRole("button", { name: "set a base model" })).toBeTruthy();
-  });
-
-  it("sends the text to /v1/completions and shows the continuation (test stand-in reply)", async () => {
-    store({ baseModel: "some/base-model" });
-    const fetchMock = stubFetch({ choices: [{ text: "TEST-CONTINUATION" }] });
-    withLive(<DocumentPlayground />);
-    fireEvent.click(screen.getByRole("button", { name: "Send" }));
-    expect((await screen.findAllByText("TEST-CONTINUATION")).length).toBeGreaterThan(0);
-    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, { body: string }];
-    expect(url).toBe("https://provider.test/api/v1/completions");
-    expect(JSON.parse(init.body)).toMatchObject({ model: "some/base-model", prompt: "Hi my name is John" });
+    expect(screen.queryByRole("button", { name: "Send" })).toBeNull();
+    expect(screen.getAllByText("Hi my name is John").length).toBeGreaterThan(0);
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });
 

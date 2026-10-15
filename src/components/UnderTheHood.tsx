@@ -1,12 +1,9 @@
 import { useMemo, useState } from "react";
-import { assemble, responseText } from "../lib/assemble";
-import { useLive } from "../lib/live";
+import { assemble } from "../lib/assemble";
 import { useStoredState } from "../lib/storage";
 import { chatTemplates, specialTokens, templateSource } from "../lib/templates";
 import type { ChatMessage, Role, Settings } from "../lib/types";
-import { useLiveRun } from "../lib/useLiveRun";
 import { Inspector } from "./Inspector";
-import { LiveControls } from "./LiveControls";
 import { RecordedExamples } from "./RecordedExamples";
 
 /** The aside: the formatting step, and the base model underneath the chat training. */
@@ -38,53 +35,23 @@ export function UnderTheHood() {
 
 const DOCUMENT_SETTINGS: Settings = { max_tokens: 120, temperature: 0.8 };
 
-/** Type the start of a document and, with a base model set up, send it. */
+/** Type the start of a document and see the exact request it becomes. Not sent: no hosted base models. */
 export function DocumentPlayground() {
-  const live = useLive();
   const [doc, setDoc] = useStoredState("hood.document", "Hi my name is John");
-  const { run, go, stop } = useLiveRun();
-
-  const model = live.settings.baseModel.trim() || "(base model)";
-  const preview = assemble({ mode: "document", model, settings: DOCUMENT_SETTINGS }, { document: doc });
-  const edited = run !== undefined && run.request.kind === "completion" && run.request.body.prompt !== doc;
-  const generated = run?.response === undefined ? undefined : responseText(run.response);
+  const request = assemble({ mode: "document", model: "(base model)", settings: DOCUMENT_SETTINGS }, { document: doc });
 
   return (
     <section className="playground">
-      <h3>Try it: write the start of a document</h3>
+      <h3>Write the start of a document</h3>
       <label className="field">
-        <span>Text sent to the model</span>
+        <span>Text for the model to continue</span>
         <textarea value={doc} onChange={(e) => setDoc(e.target.value)} rows={3} />
       </label>
-      <LiveControls
-        ready={live.baseReady}
-        model={model}
-        run={run}
-        edited={edited}
-        onSend={() => go(preview)}
-        onStop={stop}
-        setupLabel="set a base model"
-      />
-
-      {generated !== undefined && run?.request.kind === "completion" && (
-        <figure className="continuation">
-          <pre className="textview">
-            {run.request.body.prompt}
-            <span className="generated">{generated}</span>
-          </pre>
-          <figcaption>
-            Plain text: what was sent. <span className="generated">Highlighted</span>: what the model added.
-            {edited && " You've edited the text since; send again to see the new version."}
-          </figcaption>
-        </figure>
-      )}
-
-      <Inspector
-        request={run?.request ?? preview}
-        response={run?.response}
-        failure={run?.failure}
-        notSentNote={run?.pending ? "Waiting…" : "Not sent yet."}
-      />
+      <p className="muted small">
+        Hosted services have stopped offering base models, so this can't be sent live. Examples from a base model run
+        on our own computer will appear below.
+      </p>
+      <Inspector request={request} notSentNote="Not sent." />
     </section>
   );
 }

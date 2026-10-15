@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { assemble, responseText, serializeBody } from "./assemble";
+import { assemble, responseText, responseUsage, serializeBody } from "./assemble";
 import { chatTemplates, renderChatTemplate, specialTokens } from "./templates";
 import type { ChatMessage, Settings } from "./types";
 
@@ -113,5 +113,15 @@ describe("assemble: settings", () => {
   it("leaves out temperature when a page doesn't set it", () => {
     const req = assemble({ mode: "single", model: "m", settings: { max_tokens: 50 } }, { messages: chat });
     expect(Object.keys(req.body).sort()).toEqual(["max_tokens", "messages", "model"]);
+  });
+});
+
+describe("responseUsage", () => {
+  it("reads token counts, hidden reasoning and OpenRouter's cost", () => {
+    const response = {
+      usage: { prompt_tokens: 43, completion_tokens: 47, cost: 0.000556, completion_tokens_details: { reasoning_tokens: 16 } },
+    };
+    expect(responseUsage(response)).toEqual({ read: 43, wrote: 47, reasoning: 16, costUsd: 0.000556 });
+    expect(responseUsage({})).toBeUndefined();
   });
 });

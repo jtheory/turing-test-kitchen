@@ -1,14 +1,14 @@
 import { useId, useState } from "react";
 import { DEFAULT_BASE_URL, DEFAULT_CHAT_MODEL, useLive } from "../lib/live";
-import { looksBase } from "../lib/models";
 
 /** Settings for live model access with your own key. Development builds only. */
 export function LivePanel() {
   const { settings, update, chatReady, setPanelOpen } = useLive();
   const [showKey, setShowKey] = useState(false);
-  const [models, setModels] = useState<string[]>([]);
+  const [models, setModels] = useState<ModelInfo[]>([]);
   const [modelsNote, setModelsNote] = useState<string>();
   const listId = useId();
+  const chosen = models.find((m) => m.id === settings.chatModel.trim());
 
   async function loadModels() {
     setModelsNote("Loading…");
@@ -17,16 +17,10 @@ export function LivePanel() {
       if (settings.apiKey.trim()) headers.authorization = `Bearer ${settings.apiKey.trim()}`;
       const res = await fetch(settings.baseUrl.trim().replace(/\/+$/, "") + "/v1/models", { headers });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = (await res.json()) as { data?: Array<{ id: string; name?: string }> };
-      const list = json.data ?? [];
-      setModels(list.map((m) => m.id).sort());
-      const base = list.filter((m) => looksBase(m.id) || looksBase(m.name ?? "")).map((m) => m.id);
-      setModelsNote(
-        `${list.length} models. ` +
-          (base.length
-            ? `Labelled as base: ${base.join(", ")}.`
-            : "None are labelled as base models. Labels vary, so check a model's page before ruling it out."),
-      );
+      const json = (await res.json()) as { data?: ModelInfo[] };
+      const list = (json.data ?? []).sort((a, b) => a.id.localeCompare(b.id));
+      setModels(list);
+      setModelsNote(`${list.length} models loaded. Clear the field and start typing to search them.`);
     } catch (e) {
       setModelsNote(`Couldn't load the model list: ${e instanceof Error ? e.message : String(e)}`);
     }
@@ -75,35 +69,30 @@ export function LivePanel() {
 
       <label className="field">
         <span>Chat model for the tour</span>
-        <input
-          list={listId}
-          value={settings.chatModel}
-          placeholder={DEFAULT_CHAT_MODEL}
-          onChange={(e) => update({ chatModel: e.target.value })}
-          spellCheck={false}
-        />
-      </label>
-
-      <label className="field">
-        <span>Base model for "Under the hood" (optional; not a chat or instruct model)</span>
         <span className="row">
           <input
             list={listId}
-            value={settings.baseModel}
-            placeholder="none set"
-            onChange={(e) => update({ baseModel: e.target.value })}
+            value={settings.chatModel}
+            placeholder={DEFAULT_CHAT_MODEL}
+            onChange={(e) => update({ chatModel: e.target.value })}
             spellCheck={false}
           />
           <button type="button" onClick={loadModels}>
-            Load list
+            {models.length ? "Reload list" : "Load list"}
           </button>
         </span>
       </label>
       <datalist id={listId}>
         {models.map((m) => (
-          <option key={m} value={m} />
+          <option key={m.id} value={m.id} label={m.name} />
         ))}
       </datalist>
+      {chosen && (
+        <p className="muted small">
+          {chosen.name ?? chosen.id}: ${perM(chosen.pricing?.prompt)} per million tokens read, $
+          {perM(chosen.pricing?.completion)} per million written.
+        </p>
+      )}
       {modelsNote && <p className="muted small">{modelsNote}</p>}
 
       {settings.apiKey && (
@@ -113,4 +102,16 @@ export function LivePanel() {
       )}
     </section>
   );
+}
+
+interface ModelInfo {
+  id: string;
+  name?: string;
+  pricing?: { prompt?: string; completion?: string };
+}
+
+/** OpenRouter prices are USD per token, as strings. */
+function perM(v?: string): string {
+  const n = Number(v);
+  return v === undefined || isNaN(n) ? "?" : String(Math.round(n * 1e6 * 1000) / 1000);
 }
