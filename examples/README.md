@@ -6,7 +6,7 @@ Format (`RecordedExample` in `src/lib/types.ts`):
 
 ```json
 {
-  "id": "memory-without",
+  "id": "memory-without--claude-sonnet-5.5",
   "section": "memory",
   "mode": "single",
   "title": "…",
@@ -26,9 +26,12 @@ Format (`RecordedExample` in `src/lib/types.ts`):
 The prompts live in `scripts/specs.ts`. Point the script at any OpenAI-compatible server:
 
 ```sh
-# The tour (layers 1–2): a chat model, /v1/chat/completions.
+# The tour (layers 1–2): chat models, /v1/chat/completions. Run once per model;
+# each model gets its own file (<spec id>--<model>.json).
 npm run capture -- --section bare --section memory \
   --base-url https://openrouter.ai/api --model anthropic/claude-sonnet-5.5 --provider OpenRouter
+npm run capture -- --section bare --section memory \
+  --base-url https://openrouter.ai/api --model meta-llama/llama-3.1-8b-instruct --provider OpenRouter
 
 # Under the hood: a *base* model and a raw /v1/completions endpoint.
 # OpenRouter lists no base models (Oct 2026), so run one locally (e.g. llama.cpp).

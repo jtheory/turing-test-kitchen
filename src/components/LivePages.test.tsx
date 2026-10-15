@@ -31,19 +31,27 @@ describe("BareModel (layer 1)", () => {
     expect(screen.getByRole("button", { name: "set up a live model" })).toBeTruthy();
   });
 
-  it("defaults to Sonnet 5.5 and sends only the one message (test stand-in reply)", async () => {
+  it("sends the one message to Sonnet 5.5 and Llama, and shows what Llama reads (test stand-in replies)", async () => {
     store({});
-    const fetchMock = stubFetch({ choices: [{ message: { role: "assistant", content: "TEST-REPLY" } }] });
+    const fetchMock = vi.fn(async (_url: string, init: { body: string }) => {
+      const model = JSON.parse(init.body).model as string;
+      const json = { choices: [{ message: { role: "assistant", content: `TEST-REPLY from ${model}` } }] };
+      return { ok: true, status: 200, text: async () => JSON.stringify(json) };
+    });
+    vi.stubGlobal("fetch", fetchMock);
     withLive(<BareModel />);
     fireEvent.click(screen.getByRole("button", { name: "Send" }));
-    expect((await screen.findAllByText("TEST-REPLY")).length).toBeGreaterThan(0);
-    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, { body: string }];
-    expect(url).toBe("https://provider.test/api/v1/chat/completions");
-    expect(JSON.parse(init.body)).toEqual({
-      model: "anthropic/claude-sonnet-5.5",
-      messages: [{ role: "user", content: "Hi my name is John" }],
-      max_tokens: 300,
-    });
+    expect((await screen.findAllByText("TEST-REPLY from anthropic/claude-sonnet-5.5")).length).toBeGreaterThan(0);
+    expect((await screen.findAllByText("TEST-REPLY from meta-llama/llama-3.1-8b-instruct")).length).toBeGreaterThan(0);
+
+    const bodies = fetchMock.mock.calls.map(([url, init]) => [url, JSON.parse(init.body)]);
+    expect(bodies).toEqual([
+      ["https://provider.test/api/v1/chat/completions", { model: "anthropic/claude-sonnet-5.5", messages: [{ role: "user", content: "Hi my name is John" }], max_tokens: 300 }],
+      ["https://provider.test/api/v1/chat/completions", { model: "meta-llama/llama-3.1-8b-instruct", messages: [{ role: "user", content: "Hi my name is John" }], max_tokens: 300 }],
+    ]);
+    // Only the open model gets the "what the model reads" view.
+    expect(screen.getAllByText("What the model reads")).toHaveLength(1);
+    expect(screen.getAllByText(/Today Date: 26 Jul 2024/).length).toBeGreaterThan(0);
   });
 
   it("shows the provider's exact error body", async () => {
@@ -51,8 +59,8 @@ describe("BareModel (layer 1)", () => {
     stubFetch({ error: "Insufficient credits" }, 402);
     withLive(<BareModel />);
     fireEvent.click(screen.getByRole("button", { name: "Send" }));
-    expect(await screen.findByText(/HTTP 402/)).toBeTruthy();
-    expect(screen.getByText('{"error":"Insufficient credits"}')).toBeTruthy();
+    expect((await screen.findAllByText(/HTTP 402/)).length).toBe(2);
+    expect(screen.getAllByText('{"error":"Insufficient credits"}').length).toBe(2);
   });
 
   it("remembers the message across reloads", () => {

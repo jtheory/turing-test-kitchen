@@ -14,7 +14,8 @@ export const layers: LayerInfo[] = [
     title: "The bare model",
     aha: "It answers, but it knows nothing about you, today's date, or what app it's in.",
     intro: [
-      "This is one of today's strongest chat models, sent a single message and nothing else. No hidden instructions, no earlier conversation, no app wrapped around it.",
+      "Here, one message goes to two chat models with nothing else added: no hidden instructions, no earlier conversation, no app wrapped around it.",
+      "The first is one of today's strongest models. Its company keeps secret exactly how your message is laid out for it. The second is a small open model whose layout is published, so for that one you can see exactly what it reads.",
       "Chat models are trained to reply like this. What that training amounts to is a real question. Everything on the following pages is added on top of it, and you can watch each piece being added.",
     ],
     available: true,

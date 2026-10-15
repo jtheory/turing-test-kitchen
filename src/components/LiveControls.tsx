@@ -1,20 +1,22 @@
+import type { ReactNode } from "react";
 import { liveAvailable, useLive } from "../lib/live";
-import type { Run } from "../lib/useLiveRun";
 
 /** Send / Stop / setup prompt, shared by every live box. */
 export function LiveControls({
   ready,
-  model,
-  run,
-  edited,
+  models,
+  pending,
+  sendAgain,
   onSend,
   onStop,
   setupLabel = "set up a live model",
 }: {
   ready: boolean;
-  model: string;
-  run?: Run;
-  edited: boolean;
+  /** Which model(s) a send goes to. */
+  models: ReactNode;
+  pending: boolean;
+  /** The current text was already sent, so the button reads "Send again". */
+  sendAgain: boolean;
   onSend: () => void;
   onStop: () => void;
   setupLabel?: string;
@@ -37,18 +39,16 @@ export function LiveControls({
   return (
     <>
       <div className="actions">
-        {run?.pending ? (
+        {pending ? (
           <button onClick={onStop}>Stop</button>
         ) : (
           <button className="primary" onClick={onSend}>
-            {run && !edited ? "Send again" : "Send"}
+            {sendAgain ? "Send again" : "Send"}
           </button>
         )}
-        <span className="muted small">
-          Live: <code>{model}</code>
-        </span>
+        <span className="muted small">Live: {models}</span>
       </div>
-      {run?.pending && (
+      {pending && (
         <p className="muted" role="status">
           Waiting for the model…
         </p>

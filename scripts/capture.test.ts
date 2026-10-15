@@ -32,7 +32,8 @@ describe("capture", () => {
     expect(calls[0].headers.authorization).toBe("Bearer k");
     expect(ex.turns[0].request.body).toEqual(calls[0].body);
     expect(ex.captured_at).toBe("2026-01-01T00:00:00.000Z");
-    expect(validateExample(ex, "hood-script")).toEqual([]);
+    expect(ex.id).toBe("hood-script--test-model");
+    expect(validateExample(ex, "hood-script--test-model")).toEqual([]);
   });
 
   it("single mode sends each message alone", async () => {
@@ -62,6 +63,14 @@ describe("capture", () => {
   it("fails loudly on HTTP errors", async () => {
     const fetchFn: FetchLike = async () => ({ ok: false, status: 401, text: async () => "bad key" });
     await expect(capture(spec("hood-script"), ep, fetchFn)).rejects.toThrow("HTTP 401");
+  });
+});
+
+describe("exampleId", () => {
+  it("adds a slug of the model name", async () => {
+    const { exampleId } = await import("./captureLib");
+    expect(exampleId("bare-john", "anthropic/claude-sonnet-5.5")).toBe("bare-john--claude-sonnet-5.5");
+    expect(exampleId("bare-john", "meta-llama/llama-3.1-8b-instruct")).toBe("bare-john--llama-3.1-8b-instruct");
   });
 });
 

@@ -34,7 +34,7 @@ export async function capture(
     }
   }
   return {
-    id: spec.id,
+    id: exampleId(spec.id, ep.model),
     section: spec.section,
     mode: spec.mode,
     title: spec.title,
@@ -45,4 +45,10 @@ export async function capture(
     turns,
     ...(spec.notes ? { notes: spec.notes } : {}),
   };
+}
+
+/** One file per prompt and model, e.g. "bare-john--llama-3.1-8b-instruct". */
+export function exampleId(specId: string, model: string): string {
+  const slug = (model.split("/").pop() ?? model).toLowerCase().replace(/[^a-z0-9.]+/g, "-").replace(/^-|-$/g, "");
+  return `${specId}--${slug}`;
 }

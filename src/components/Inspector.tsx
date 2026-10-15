@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { responseText, responseUsage, serializeBody, type Usage } from "../lib/assemble";
 import type { ModelRequest } from "../lib/types";
+import { modelReads } from "../lib/openModels";
 import { TextView } from "./TextView";
 
 interface Props {
@@ -21,6 +22,7 @@ export function Inspector({ request, response, tokens, notSentNote, failure }: P
   const settings = Object.entries(rest).filter(([k]) => k !== "prompt" && k !== "messages");
   const out = response === undefined ? undefined : responseText(response);
   const usage = response === undefined ? undefined : responseUsage(response);
+  const reads = modelReads(request);
 
   return (
     <section className="inspector" aria-label="Inspector">
@@ -37,11 +39,14 @@ export function Inspector({ request, response, tokens, notSentNote, failure }: P
       </div>
 
       <h5>Sent</h5>
-      {request.kind === "chat" && (
+      {request.kind === "chat" && !reads && (
         <p className="meta">
-          Exactly what this site sends. The provider reformats it before the model reads it.{" "}
-          <a href="#/under-the-hood">How?</a>
+          Exactly what this site sends. The provider reformats it before the model reads it, in a format that isn't
+          public. <a href="#/under-the-hood">How?</a>
         </p>
+      )}
+      {reads && (
+        <p className="meta">Exactly what this site sends. The model never sees it in this form: see below.</p>
       )}
       {view === "readable" ? (
         <>
@@ -73,6 +78,22 @@ export function Inspector({ request, response, tokens, notSentNote, failure }: P
             The exact request body, byte for byte, sent to <code>{request.path}</code>:
           </p>
           <pre className="json">{serializeBody(request)}</pre>
+        </>
+      )}
+
+      {reads && view === "readable" && (
+        <>
+          <h5>What the model reads</h5>
+          <p className="meta">
+            Before the model sees your message, it's turned into one piece of text using this model's published chat
+            template. <mark className="token">Highlighted</mark> parts are special markers. Everything else that you
+            didn't type was added too. The model's reply continues this text.
+          </p>
+          <TextView text={reads.text} tokens={reads.tokens} label="Text the model reads" />
+          <p className="meta">
+            Rendered here from the model's published template. The host should produce the same text, though it may
+            fill in details like the date differently.
+          </p>
         </>
       )}
 

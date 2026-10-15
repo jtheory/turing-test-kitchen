@@ -125,3 +125,19 @@ describe("responseUsage", () => {
     expect(responseUsage({})).toBeUndefined();
   });
 });
+
+describe("modelReads", () => {
+  it("renders Llama's template for a Llama chat request, and nothing for closed models", async () => {
+    const { modelReads } = await import("./openModels");
+    const msgs = [{ role: "user" as const, content: "Hi my name is John" }];
+    const llama = assemble({ mode: "single", model: "meta-llama/llama-3.1-8b-instruct", settings }, { messages: msgs });
+    expect(modelReads(llama)?.text).toBe(
+      "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n" +
+        "Cutting Knowledge Date: December 2023\nToday Date: 26 Jul 2024\n\n<|eot_id|>" +
+        "<|start_header_id|>user<|end_header_id|>\n\nHi my name is John<|eot_id|>" +
+        "<|start_header_id|>assistant<|end_header_id|>\n\n",
+    );
+    const sonnet = assemble({ mode: "single", model: "anthropic/claude-sonnet-5.5", settings }, { messages: msgs });
+    expect(modelReads(sonnet)).toBeUndefined();
+  });
+});

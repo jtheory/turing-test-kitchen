@@ -50,7 +50,7 @@ if (chosen.length === 0) {
 mkdirSync(values.out!, { recursive: true });
 for (const spec of chosen) {
   const example = await capture(spec, { baseUrl, model, provider, apiKey: process.env.CAPTURE_API_KEY }, fetch);
-  const file = join(values.out!, `${spec.id}.json`);
+  const file = join(values.out!, `${example.id}.json`);
   writeFileSync(file, JSON.stringify(example, null, 2) + "\n");
   console.log(`wrote ${file}`);
 }

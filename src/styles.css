@@ -173,3 +173,7 @@ button.primary { background: var(--accent); color: var(--bg); border-color: var(
 .aside-link { margin-top: 28px; padding: 12px 14px; border: 1px dashed var(--border); border-radius: var(--radius); }
 h2 { font-size: 1.35rem; margin: 36px 0 8px; }
 .usage { margin-top: 6px; }
+.model-card { margin-top: 18px; padding-top: 14px; border-top: 2px solid var(--border); }
+.model-card header h4 { font-size: 1rem; overflow-wrap: anywhere; }
+.model-card header p { margin: 2px 0 0; }
+.model-card .inspector { border-top: none; padding-top: 0; }

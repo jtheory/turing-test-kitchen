@@ -55,7 +55,8 @@ Code map:
 - `src/lib/send.ts`: sends an assembled request (shared by the site and the capture script).
 - `src/lib/live.tsx`, `src/components/LivePanel.tsx`: the development-only live model settings.
 - `src/lib/storage.ts`: guarded localStorage helpers for everything the site remembers.
-- `src/lib/templates.ts`, `src/data/chat-templates.json`: real chat templates for the "Under the hood" page.
+- `src/lib/templates.ts`, `src/data/chat-templates.json`: real chat templates for open models.
+- `src/lib/openModels.ts`: open models paired with their template, so the inspector can show exactly what they read (layer 1 pairs Llama 3.1 8B with the chosen closed model).
 - `scripts/models.ts`: snapshot of OpenRouter's model list (prices, context, parameters, likely base models). Commit the snapshot so model choices can be reviewed from the repo. `--endpoints <id,…>` also saves which hosts serve given models.
 - `scripts/specs.ts`, `scripts/capture.ts`: what to record, and the script that records it.
 - `src/content/layers.ts`: the plain-language copy for each layer.
