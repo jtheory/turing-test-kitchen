@@ -1,0 +1,156 @@
+{
+  "id": "memory-with",
+  "section": "memory",
+  "mode": "transcript",
+  "title": "With memory",
+  "model": "anthropic/claude-sonnet-5.5",
+  "provider": "OpenRouter",
+  "captured_at": "2026-10-15T10:53:14.369Z",
+  "settings": {
+    "max_tokens": 300
+  },
+  "turns": [
+    {
+      "request": {
+        "kind": "chat",
+        "path": "/v1/chat/completions",
+        "body": {
+          "model": "anthropic/claude-sonnet-5.5",
+          "messages": [
+            {
+              "role": "user",
+              "content": "Hi my name is John"
+            }
+          ],
+          "max_tokens": 300
+        }
+      },
+      "response": {
+        "id": "gen-1792061591-JgCNF2xM8UkQXNNFBRI1",
+        "object": "chat.completion",
+        "created": 1792061591,
+        "model": "anthropic/claude-sonnet-5.5",
+        "provider": "Claude Platform on AWS",
+        "system_fingerprint": null,
+        "service_tier": "default",
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "end_turn",
+            "message": {
+              "role": "assistant",
+              "content": "Hi John, nice to meet you! How can I help you today?",
+              "refusal": null,
+              "reasoning": null
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 15,
+          "completion_tokens": 21,
+          "total_tokens": 36,
+          "cost": 0.00024,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.00024,
+            "upstream_inference_prompt_cost": 0.00003,
+            "upstream_inference_completions_cost": 0.00021
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "kind": "chat",
+        "path": "/v1/chat/completions",
+        "body": {
+          "model": "anthropic/claude-sonnet-5.5",
+          "messages": [
+            {
+              "role": "user",
+              "content": "Hi my name is John"
+            },
+            {
+              "role": "assistant",
+              "content": "Hi John, nice to meet you! How can I help you today?"
+            },
+            {
+              "role": "user",
+              "content": "What's my name?"
+            }
+          ],
+          "max_tokens": 300
+        }
+      },
+      "response": {
+        "id": "gen-1792061592-yloMGzlXgoptwrTbjPHu",
+        "object": "chat.completion",
+        "created": 1792061592,
+        "model": "anthropic/claude-sonnet-5.5",
+        "provider": "Claude Platform on AWS",
+        "system_fingerprint": null,
+        "service_tier": "default",
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "end_turn",
+            "message": {
+              "role": "assistant",
+              "content": "Your name is John, as you told me at the start of our conversation. Is there something I can help you with?",
+              "refusal": null,
+              "reasoning": "He's telling me his name is John, so I'll just greet him simply.\n\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "He's telling me his name is John, so I'll just greet him simply.\n\n",
+                  "format": "anthropic-claude-v1",
+                  "index": 0,
+                  "signature": "CAQSlwUKEAgSGAI4AUIIdGhpbmtpbmcSDMEYTB+Bl4jKiNIacBoMig8CqjXncKr3gPCUIjAlUt0Wp7k+iTwmkkBmeAxTgcHPpZpAj62R9mS+uSFjGaDClkwqYrzCChBfYWStvcQqtARxyH/MDVKHHf2VI3/CEKvobPXzhRMwrXKHjOpsmgU/kLqXox4xjYJov+Uc0kyUql00RXuO1f9Bhb4MUJZ3VJbAS6KFKwRuZPjv8M3rcYc74KC+CKKbOWsucCTn3bZbZj7a9/quCriyR8cib07F1xJoKK0NzQppA1XazkF1dVhqtV3q1QJggkVU0ezhufV0tL4ZZghA6YAbjEB/Y/641Ov6stVmnA+lwcYXd9XBCn7WPu2WKLwvtVvgxc8BtsnXNciHhUB1CN08XkmPaoQytp6RR9dxFv7654S7sFoPscByLGwjP4FoG9fslUR9CXs1Ss7Tmx+l1T0c3wbmxBPHDNPS/4TQpZk4a/s+mvjnKfj1qW8SytewaTYdMY881PySaOGzi4km0TxveJmBbnVN9XW9ydxgdpqtC/YWJEH5F5HaKmu1lzg5uYR8JIpdVugP1HzZrOHxpF1DmoZ6W3k6+MLJDoh2FPiRNScj4E1wy6QTyyKEIgP3IhiXAN0JXEB84kwUDv4mErjnlQt/jPzcCAn/J1VLeJnKyMF91rdg52moFasmdk2xecDEJrA9XW4EQGRtxjez3aaz1Xn60HCe+1dNsELEQV0oqhAjT5XN2tzczbX4+xc5AE5KliTaNt4D4SfIIJr49QxeW9wbDpmXcq2Q5SHn8kjJme5a41XzsHZxSHzVmsCSAFCYDrO5+/hz+yjBMMEjAUqA/m7JgSTCUgB8+NvWtJUn8kYo/DNSNnrsErVlwpAYAQ==.eyJlbmRwb2ludF9zbHVnIjoiYW50aHJvcGljL2NsYXVkZS1zb25uZXQtNS41LTIwMjYwOTI4fGNsYXVkZS1vbi1hd3MifQ"
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 43,
+          "completion_tokens": 47,
+          "total_tokens": 90,
+          "cost": 0.000556,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.000556,
+            "upstream_inference_prompt_cost": 0.000086,
+            "upstream_inference_completions_cost": 0.00047
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 16,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "notes": "The same two messages, but the whole conversation is re-sent each turn."
+}
