@@ -42,6 +42,8 @@ The tour starts from a powerful chat model (e.g. Claude Sonnet 5.5) called throu
 - With open models we *can* show it exactly: the real chat templates (the former layer 2 demo).
 - Optionally, recorded examples from a base model continuing text ("Hi my name is John" → more of John's text), captured locally, since OpenRouter no longer lists base models.
 
+**Base models in the aside: real ones only.** Base-model examples come from a real base model run locally (e.g. Llama 3.1 8B base via llama.cpp). Never a chat model told to "act like a base model": that shows a performance, not the mechanism. A chat model sent raw text without its chat template is allowed, labelled as exactly that. Not planned: letting visitors suggest base-model examples.
+
 **What the inspector can and can't show.** It shows the exact request we send and the exact response. With a hosted model, the request is converted again before it reaches the model (OpenRouter → the provider's own format → the model's hidden template). The inspector says so plainly next to the request.
 
 **Possible later finale:** a short guess-the-human game, or a link out to existing Turing games instead of building one.
