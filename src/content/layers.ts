@@ -26,7 +26,7 @@ export const layers: LayerInfo[] = [
     aha: "\"Remembering\" means re-reading everything, every turn.",
     intro: [
       "A model doesn't change while you talk to it. Each request is handled from scratch, and nothing is kept afterwards.",
-      "So to make it seem to remember, the app sends the whole conversation again with every new message. Compare the two versions below: same messages, but only one re-sends the history.",
+      "So to make it seem to remember, the app sends the whole conversation again with every new message. Try it: tell it your name, then ask for it, and watch what the model gets each time.",
     ],
     available: true,
   },

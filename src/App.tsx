@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import { BareModel } from "./components/BareModel";
+import { ChatExhibit } from "./components/ChatExhibit";
+import { examplesFor } from "./lib/examples";
+import { DEFAULT_OPEN_MODEL } from "./lib/openModels";
 import { RecordedExamples } from "./components/RecordedExamples";
 import { UnderTheHood } from "./components/UnderTheHood";
 import { LivePanel } from "./components/LivePanel";
@@ -97,7 +100,9 @@ export function App() {
                 </p>
               </>
             )}
-            {info.n === 2 && <RecordedExamples section="memory" />}
+            {info.n === 2 && (
+              <ChatExhibit mode="transcript" model={DEFAULT_OPEN_MODEL} fallback={examplesFor("memory").find((e) => e.mode === "transcript")} />
+            )}
             <footer className="pager">
               {next ? <a href={`#/layer/${next.n}`}>Next: {next.title} →</a> : <p className="muted">More layers are on the way.</p>}
             </footer>
