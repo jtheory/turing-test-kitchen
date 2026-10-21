@@ -15,6 +15,11 @@ export interface Settings {
   top_p?: number;
   seed?: number;
   stop?: string[];
+  /**
+   * OpenRouter's switch for "thinking" models: { enabled: false } turns it off,
+   * { effort } turns it on at a level. Only for models that list "reasoning".
+   */
+  reasoning?: { enabled?: boolean; effort?: "minimal" | "low" | "medium" | "high"; exclude?: boolean };
 }
 
 /** Raw text continuation: OpenAI-compatible POST /v1/completions. */
@@ -45,7 +50,14 @@ export type ModelRequest = CompletionRequest | ChatRequest;
 export type Mode = "single" | "transcript" | "document" | "template";
 
 export type AssembleConfig =
-  | { mode: "single" | "transcript" | "document"; model: string; settings: Settings }
+  | {
+      mode: "single" | "transcript";
+      model: string;
+      settings: Settings;
+      /** Hidden instructions, sent first as a system message. */
+      system?: string;
+    }
+  | { mode: "document"; model: string; settings: Settings }
   | { mode: "template"; model: string; templateId: string; settings: Settings };
 
 /**

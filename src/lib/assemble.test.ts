@@ -141,3 +141,23 @@ describe("modelReads", () => {
     expect(modelReads(sonnet)).toBeUndefined();
   });
 });
+
+describe("assemble: hidden instructions", () => {
+  it("puts the system prompt first, in both chat modes", () => {
+    const t = assemble({ mode: "transcript", model: "m", settings, system: "You are Sam." }, { messages: chat });
+    expect(t.kind === "chat" && t.body.messages).toEqual([{ role: "system", content: "You are Sam." }, ...chat]);
+    const s = assemble({ mode: "single", model: "m", settings, system: "You are Sam." }, { messages: chat });
+    expect(s.kind === "chat" && s.body.messages).toEqual([
+      { role: "system", content: "You are Sam." },
+      { role: "user", content: "What's my name?" },
+    ]);
+  });
+
+  it("passes the thinking switch through as a setting", () => {
+    const req = assemble(
+      { mode: "transcript", model: "m", settings: { max_tokens: 50, reasoning: { enabled: false } } },
+      { messages: chat },
+    );
+    expect(req.body).toMatchObject({ reasoning: { enabled: false } });
+  });
+});

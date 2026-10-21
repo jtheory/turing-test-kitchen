@@ -44,6 +44,7 @@ npm run typecheck
 npm run build      # static site in dist/
 npm run capture    # record examples; see examples/README.md
 npm run models     # refresh data/openrouter/models.json and show your key's limit
+npm run bakeoff    # persona bake-off across candidate models; see scripts/bakeoff/config.ts
 ```
 
 **Live model while developing:** in `npm run dev`, the "Live model" button in the header takes an OpenAI-compatible provider address (default OpenRouter), your API key, a chat model (default `anthropic/claude-sonnet-5.5`) and optionally a base model for the "Under the hood" page. They're kept in your browser's localStorage and the key is sent only to that provider. Production builds leave this out entirely.

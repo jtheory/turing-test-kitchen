@@ -13,10 +13,10 @@ export function assemble(config: AssembleConfig, conversation: Conversation): Mo
     case "single": {
       const lastUser = messagesOf(conversation).findLast((m) => m.role === "user");
       if (!lastUser) throw new Error("Needs at least one user message");
-      return chat(config.model, [copy(lastUser)], config.settings);
+      return chat(config.model, [...systemOf(config.system), copy(lastUser)], config.settings);
     }
     case "transcript":
-      return chat(config.model, messagesOf(conversation).map(copy), config.settings);
+      return chat(config.model, [...systemOf(config.system), ...messagesOf(conversation).map(copy)], config.settings);
     case "document":
       return completion(config.model, documentOf(conversation), config.settings);
     case "template": {
@@ -25,6 +25,10 @@ export function assemble(config: AssembleConfig, conversation: Conversation): Mo
       return completion(config.model, prompt, config.settings);
     }
   }
+}
+
+function systemOf(system?: string): ChatMessage[] {
+  return system === undefined ? [] : [{ role: "system", content: system }];
 }
 
 function chat(model: string, messages: ChatMessage[], settings: Settings): ModelRequest {

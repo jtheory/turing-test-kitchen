@@ -10,7 +10,8 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "capture": "tsx scripts/capture.ts",
-    "models": "tsx scripts/models.ts"
+    "models": "tsx scripts/models.ts",
+    "bakeoff": "tsx scripts/bakeoff.ts"
   },
   "dependencies": {
     "@huggingface/jinja": "^0.5.10",
