@@ -8,6 +8,13 @@ The reference for how the tour looks and behaves. Decided October 2026; refine a
 2. **Layers 1–8**, each adding one piece, ending back at something like the opening chat.
 3. **Under the hood**: an optional aside, linked where it helps (the formatting step, base models).
 
+## What's saved, and when
+
+- **Each early layer starts a fresh chat.** Visitors will test things like giving a different name, so nothing carries over from the previous layer.
+- **Until the long-term memory layer, nothing is saved at all.** Each chat lives only in the page; reloading clears it. The page says so plainly.
+- **Long-term memory (layer 6):** notes about the visitor carry across chats. Chat history does not, because a chat held under one persona would skew replies under another.
+- **Layer 2 is only re-sending this chat's history.** No notes about the user; that's layer 6.
+
 ## Live first, recorded as fallback
 
 - **Live is the default.** On every layer where it's possible, the visitor types and gets real replies. Trying it is the main path, not an extra.
@@ -27,7 +34,7 @@ The reference for how the tour looks and behaves. Decided October 2026; refine a
 - **The visitor's own words** are shown plainly, full contrast.
 - **Markup** (role markers, special tokens, JSON structure) has a function, so it's shown, but **greyed out**.
 - **Added context** (re-sent history, hidden instructions, notes, search results) is shown **muted, colour-coded by layer**.
-- **Hover (desktop) or tap (touch)** on any muted part makes it fully legible and shows a short plain explanation of what it is and why it's there.
+- **Hover (desktop) or tap (touch)** on any muted part makes it fully legible and shows a short plain explanation of what it is and why it's there. On phones, tap is the only way in, so nothing may depend on hover.
 
 ## Language
 
