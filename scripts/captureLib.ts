@@ -8,6 +8,12 @@ export type { FetchLike };
 export interface CaptureEndpoint extends Endpoint {
   model: string;
   provider: string;
+  /**
+   * Text put before every document, e.g. "<|begin_of_text|>" for Llama 3 on a server
+   * that doesn't add the model's start token itself (mlx_lm.server). It is part of the
+   * recorded request, so the inspector shows it.
+   */
+  startToken?: string;
 }
 
 /** Run one spec against a real model and return the recorded example. */
@@ -19,7 +25,9 @@ export async function capture(
 ): Promise<RecordedExample> {
   const turns: RecordedTurn[] = [];
   if (spec.mode === "document") {
-    const request = assemble({ mode: "document", model: ep.model, settings: spec.settings }, { document: spec.document });
+    const request = assemble({ mode: "document", model: ep.model, settings: spec.settings }, {
+      document: (ep.startToken ?? "") + spec.document,
+    });
     turns.push({ request, response: await send(request, ep, fetchFn) });
   } else {
     const messages: ChatMessage[] = [];
@@ -43,8 +51,14 @@ export async function capture(
     captured_at: now().toISOString(),
     settings: spec.settings,
     turns,
-    ...(spec.notes ? { notes: spec.notes } : {}),
+    ...(notes(spec, ep) ? { notes: notes(spec, ep) } : {}),
   };
+}
+
+function notes(spec: CaptureSpec, ep: CaptureEndpoint): string | undefined {
+  if (spec.mode !== "document" || !ep.startToken) return spec.notes;
+  const added = `The text starts with ${ep.startToken}, the model's hidden start-of-text marker. This server doesn't add it, so it was added to the text.`;
+  return spec.notes ? `${spec.notes} ${added}` : added;
 }
 
 /** One file per prompt and model, e.g. "bare-john--llama-3.1-8b-instruct". */

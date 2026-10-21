@@ -63,15 +63,8 @@ export const specs: CaptureSpec[] = [
   },
 
   // Under the hood: base models continuing text (capture from a local base model)
-  {
-    id: "hood-john",
-    section: "under-the-hood",
-    mode: "document",
-    title: "Hi my name is John, to a base model",
-    notes: "The same opening line with nothing around it. A base model doesn't reply to John; it carries on writing John's text.",
-    settings: base,
-    document: john,
-  },
+  // hood-empty runs first: its prompt (at most a start token) is a prefix of the others,
+  // and mlx_lm.server's prompt cache crashes on a prefix of a prompt it has already seen.
   {
     id: "hood-empty",
     section: "under-the-hood",
@@ -80,6 +73,15 @@ export const specs: CaptureSpec[] = [
     notes: "With nothing to continue, a base model starts a document of its own, of whatever kind is likely.",
     settings: base,
     document: "",
+  },
+  {
+    id: "hood-john",
+    section: "under-the-hood",
+    mode: "document",
+    title: "Hi my name is John, to a base model",
+    notes: "The same opening line with nothing around it. A base model doesn't reply to John; it carries on writing John's text.",
+    settings: base,
+    document: john,
   },
   {
     id: "hood-script",

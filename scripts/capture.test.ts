@@ -36,6 +36,14 @@ describe("capture", () => {
     expect(validateExample(ex, "hood-script--test-model")).toEqual([]);
   });
 
+  it("puts the start token before documents and says so in the notes", async () => {
+    const { calls, fetchFn } = fakeServer();
+    const ex = await capture(spec("hood-empty"), { ...ep, startToken: "<|begin_of_text|>" }, fetchFn);
+    expect((calls[0].body as { prompt: string }).prompt).toBe("<|begin_of_text|>");
+    expect(ex.notes).toContain("<|begin_of_text|>");
+    expect(validateExample(ex)).toEqual([]);
+  });
+
   it("single mode sends each message alone", async () => {
     const { calls, fetchFn } = fakeServer();
     const ex = await capture(spec("memory-without"), ep, fetchFn);

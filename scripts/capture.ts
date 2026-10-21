@@ -4,7 +4,8 @@
 //     --base-url https://openrouter.ai/api --model anthropic/claude-sonnet-5.5 --provider OpenRouter
 //
 // Options: --spec <id> or --section <bare|memory|under-the-hood> (both
-// repeatable), --base-url, --model, --provider, --timeout <seconds per request, default 120>. The key is read from CAPTURE_API_KEY (or from a .env file in the
+// repeatable), --base-url, --model, --provider, --timeout <seconds per request, default 120>,
+// --start-token <text> (put before every document, for servers that don't add the model's start token). The key is read from CAPTURE_API_KEY (or from a .env file in the
 // project root) and never written to the examples.
 
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -29,6 +30,7 @@ const { values } = parseArgs({
     provider: { type: "string" },
     out: { type: "string", default: "examples" },
     timeout: { type: "string", default: "120" },
+    "start-token": { type: "string" },
   },
 });
 
@@ -57,7 +59,7 @@ const failed: string[] = [];
 for (const spec of chosen) {
   console.log(`capturing ${spec.id}…`);
   try {
-    const example = await capture(spec, { baseUrl, model, provider, apiKey: process.env.CAPTURE_API_KEY }, fetchWithTimeout);
+    const example = await capture(spec, { baseUrl, model, provider, apiKey: process.env.CAPTURE_API_KEY, startToken: values["start-token"] }, fetchWithTimeout);
     const file = join(values.out!, `${example.id}.json`);
     writeFileSync(file, JSON.stringify(example, null, 2) + "\n");
     console.log(`wrote ${file}`);
