@@ -50,11 +50,11 @@ The tour starts from a powerful chat model (e.g. Claude Sonnet 5.5) called throu
 
 ## 4. How visitors interact
 
-Three modes, in priority order:
+Live first, recorded as fallback (revised October 2026; see `docs/ux.md`):
 
-1. **Recorded examples (default).** Real model outputs captured ahead of time, shown with the exact prompt, model name, settings and capture date. Clearly labelled as recorded. Costs nothing to serve and works everywhere.
-2. **Limited live chat (hosted).** A small budget of live messages per visitor, on a cheap hosted model, at the points where trying it yourself matters most (mainly layers 1–2, 4–5 and 8).
-3. **Bring your own key (optional, advanced).** For people who want to try the strongest models. Clearly marked as optional and not needed for the tour.
+1. **Live chat (default).** On every layer where it's possible, visitors type and get real replies, through our hosted proxy on a small per-visitor budget. No accounts or keys needed.
+2. **Recorded examples (fallback).** Real model outputs captured ahead of time, shown with the exact prompt, model name, settings and capture date, clearly labelled as recorded. Used when live is unavailable, and the page says so clearly.
+3. **Bring your own key (optional, advanced).** Hidden in advanced settings, with at most a model select list there.
 
 ## 5. Architecture
 
@@ -81,7 +81,7 @@ Three modes, in priority order:
 ## 7. Milestones
 
 1. **M1 – Skeleton and inspector.** Static site, layers 1–2 with recorded examples, working inspector, mobile layout. Live calls with your own key in development builds.
-2. **M2 – Live chat.** Hosted proxy with rate limits and spend cap; live chat on layers 1–2.
+2. **M2 – Live chat.** Hosted proxy with rate limits and spend cap; live chat on layers 1–2. Needed before any public release, since live is the default.
 3. **M3 – Instructions and persona.** Layers 3–5, including the centrepiece demo.
 4. **M4 – Memory, tools and finish.** Layers 6–8.
 5. **M5 – BYOK.** Optional advanced mode.
