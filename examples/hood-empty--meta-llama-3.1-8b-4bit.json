@@ -1,0 +1,47 @@
+{
+  "id": "hood-empty--meta-llama-3.1-8b-4bit",
+  "section": "under-the-hood",
+  "mode": "document",
+  "title": "No text at all",
+  "model": "mlx-community/Meta-Llama-3.1-8B-4bit",
+  "provider": "local mlx_lm",
+  "captured_at": "2026-10-21T21:05:35.362Z",
+  "settings": {
+    "max_tokens": 120,
+    "temperature": 0.8
+  },
+  "turns": [
+    {
+      "request": {
+        "kind": "completion",
+        "path": "/v1/completions",
+        "body": {
+          "model": "mlx-community/Meta-Llama-3.1-8B-4bit",
+          "prompt": "<|begin_of_text|>",
+          "max_tokens": 120,
+          "temperature": 0.8
+        }
+      },
+      "response": {
+        "id": "cmpl-1639e26d-f5ef-4f30-8fe9-ed331495fa1b",
+        "system_fingerprint": "0.30.7-0.30.6-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g16g",
+        "object": "text_completion",
+        "model": "mlx-community/Meta-Llama-3.1-8B-4bit",
+        "created": 1792616729,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "length",
+            "text": "Solana Has Risen 13% In The Last 24 Hours To Be the Day’s Largest Gainer\nSolana has been one of the leading altcoins in the past few months. Its governance-related tokens have assumed center stage and are currently enjoying a bull run.\nSOL Price Trending Upwards\nSolana is an advanced blockchain that provides a variety of solutions for the markets it serves. Since its launch, it has grown in popularity among developers as an ideal cryptocurrency for creating decentralized applications (dApps). \nSolana’s name comes from the word “solar,” which refers to"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 1,
+          "completion_tokens": 120,
+          "total_tokens": 121
+        }
+      }
+    }
+  ],
+  "notes": "With nothing to continue, a base model starts a document of its own, of whatever kind is likely. The text starts with <|begin_of_text|>, the model's hidden start-of-text marker. This server doesn't add it, so it was added to the text."
+}

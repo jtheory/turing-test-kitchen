@@ -1,0 +1,47 @@
+{
+  "id": "hood-john--meta-llama-3.1-8b-4bit",
+  "section": "under-the-hood",
+  "mode": "document",
+  "title": "Hi my name is John, to a base model",
+  "model": "mlx-community/Meta-Llama-3.1-8B-4bit",
+  "provider": "local mlx_lm",
+  "captured_at": "2026-10-21T21:05:41.096Z",
+  "settings": {
+    "max_tokens": 120,
+    "temperature": 0.8
+  },
+  "turns": [
+    {
+      "request": {
+        "kind": "completion",
+        "path": "/v1/completions",
+        "body": {
+          "model": "mlx-community/Meta-Llama-3.1-8B-4bit",
+          "prompt": "<|begin_of_text|>Hi my name is John",
+          "max_tokens": 120,
+          "temperature": 0.8
+        }
+      },
+      "response": {
+        "id": "cmpl-a16dc5bb-40d9-4325-b5ce-2e1bcda12133",
+        "system_fingerprint": "0.30.7-0.30.6-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g16g",
+        "object": "text_completion",
+        "model": "mlx-community/Meta-Llama-3.1-8B-4bit",
+        "created": 1792616735,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "length",
+            "text": ". I grew up in a home where love and compassion was a way of life. I understand the positives and negatives of single parenthood. I was able to learn my strengths and weaknesses at a young age. I always wanted to have children of my own. I am now 40 years old and have been in a committed relationship with my partner of 17 years. We want to have a family but know that becoming a parent is a lifelong commitment and know that we are not ready to have a child of our own. We would love to have a child in our life but know that we will"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 6,
+          "completion_tokens": 120,
+          "total_tokens": 126
+        }
+      }
+    }
+  ],
+  "notes": "The same opening line with nothing around it. A base model doesn't reply to John; it carries on writing John's text. The text starts with <|begin_of_text|>, the model's hidden start-of-text marker. This server doesn't add it, so it was added to the text."
+}

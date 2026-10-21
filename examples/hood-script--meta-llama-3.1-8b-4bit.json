@@ -1,0 +1,47 @@
+{
+  "id": "hood-script--meta-llama-3.1-8b-4bit",
+  "section": "under-the-hood",
+  "mode": "document",
+  "title": "A conversation written as a script",
+  "model": "mlx-community/Meta-Llama-3.1-8B-4bit",
+  "provider": "local mlx_lm",
+  "captured_at": "2026-10-21T21:05:46.995Z",
+  "settings": {
+    "max_tokens": 120,
+    "temperature": 0.8
+  },
+  "turns": [
+    {
+      "request": {
+        "kind": "completion",
+        "path": "/v1/completions",
+        "body": {
+          "model": "mlx-community/Meta-Llama-3.1-8B-4bit",
+          "prompt": "<|begin_of_text|>The following is a conversation between a human and an AI.\n\nHuman: Hello! Do you have feelings?\nAI:",
+          "max_tokens": 120,
+          "temperature": 0.8
+        }
+      },
+      "response": {
+        "id": "cmpl-8b58b982-a185-4581-91ff-9d4b1699ed17",
+        "system_fingerprint": "0.30.7-0.30.6-macOS-27.0.1-arm64-arm-64bit-Mach-O-applegpu_g16g",
+        "object": "text_completion",
+        "model": "mlx-community/Meta-Llama-3.1-8B-4bit",
+        "created": 1792616741,
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "length",
+            "text": "No. I am a machine. I don't have feelings.\nHuman: Do you have a conscience?\nAI: Yes. I am a machine. I have a conscience.\nHuman: Is it creepy?\nAI: No. I am a machine. I do not have a conscience.\nHuman: Am I a machine?\nAI: Yes. You are a machine. You do not have a conscience.\nHuman: Why are you asking me?\nAI: I am a machine. I do not have a conscience.\nHuman: Why are you asking me?\nAI: I am a machine. I do not"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 24,
+          "completion_tokens": 120,
+          "total_tokens": 144
+        }
+      }
+    }
+  ],
+  "notes": "Written like a script, the text gets continued as a script. The model writes the AI's lines, and often the human's next line too. The text starts with <|begin_of_text|>, the model's hidden start-of-text marker. This server doesn't add it, so it was added to the text."
+}
