@@ -4,7 +4,7 @@
 //     --base-url https://openrouter.ai/api --model anthropic/claude-sonnet-5.5 --provider OpenRouter
 //
 // Options: --spec <id> or --section <bare|memory|under-the-hood> (both
-// repeatable), --base-url, --model, --provider. The key is read from CAPTURE_API_KEY (or from a .env file in the
+// repeatable), --base-url, --model, --provider, --timeout <seconds per request, default 120>. The key is read from CAPTURE_API_KEY (or from a .env file in the
 // project root) and never written to the examples.
 
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -28,6 +28,7 @@ const { values } = parseArgs({
     model: { type: "string" },
     provider: { type: "string" },
     out: { type: "string", default: "examples" },
+    timeout: { type: "string", default: "120" },
   },
 });
 
@@ -47,10 +48,26 @@ if (chosen.length === 0) {
   process.exit(1);
 }
 
+// A stuck server (e.g. one that crashed on a request without answering) fails that spec instead of hanging.
+const timeoutMs = Number(values.timeout) * 1000;
+const fetchWithTimeout: typeof fetch = (url, init) => fetch(url, { ...init, signal: AbortSignal.timeout(timeoutMs) });
+
 mkdirSync(values.out!, { recursive: true });
+const failed: string[] = [];
 for (const spec of chosen) {
-  const example = await capture(spec, { baseUrl, model, provider, apiKey: process.env.CAPTURE_API_KEY }, fetch);
-  const file = join(values.out!, `${example.id}.json`);
-  writeFileSync(file, JSON.stringify(example, null, 2) + "\n");
-  console.log(`wrote ${file}`);
+  console.log(`capturing ${spec.id}…`);
+  try {
+    const example = await capture(spec, { baseUrl, model, provider, apiKey: process.env.CAPTURE_API_KEY }, fetchWithTimeout);
+    const file = join(values.out!, `${example.id}.json`);
+    writeFileSync(file, JSON.stringify(example, null, 2) + "\n");
+    console.log(`wrote ${file}`);
+  } catch (err) {
+    const reason = err instanceof Error && err.name === "TimeoutError" ? `no response after ${values.timeout}s` : String(err);
+    console.error(`failed ${spec.id}: ${reason}`);
+    failed.push(spec.id);
+  }
+}
+if (failed.length > 0) {
+  console.error(`\n${failed.length} of ${chosen.length} failed: ${failed.join(", ")}`);
+  process.exit(1);
 }
